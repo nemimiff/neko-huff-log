@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neko Huff Log</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFB6C1' stroke='%23f29ca3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='4' r='2'/><circle cx='18' cy='8' r='2'/><circle cx='20' cy='16' r='2'/><path d='M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f5f4f2;
+    --card: #ffffff;
+    --card-subtle: #f3f1ed;
+    --surface-hover: #f0eee9;
+    --text-main: #2a2927;
+    --text-sub: #75726c;
+    --text-muted: #aba79f;
+    --teal: #367d73;
+    --teal-bg: #e5efec;
+    --teal-badge: #CEC5C0;
+    --yellow-badge: #faefd7;
+    --yellow-text: #634f1b;
+    --rest-pink: #fbe6e9;
+    --rest-pink-text: #bf5362;
+    --font-main: 'Plus Jakarta Sans', 'Zen Kaku Gothic New', sans-serif;
+  }
+  body.soft-font { --font-main: 'Plus Jakarta Sans', 'M PLUS 2', sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    letter-spacing: 0.015em;
+    padding: 20px 16px 95px;
+    max-width: 600px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+  .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+  /* Header */
+  header { margin-bottom: 16px; }
+  .brand-bar {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon {
+    width: 36px; height: 36px; border-radius: 12px; 
+    display: flex; align-items: center; justify-content: center; color: rgb(181, 168, 159);
+  }
+  .brand h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.15rem; }
+  .brand p { font-size: 0.7rem; color: var(--text-sub); margin-top: -2px; letter-spacing: 0.1rem; }
+
+  .header-actions { display: flex; gap: 6px; }
+  .btn-icon-soft {
+    width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: var(--card); color: var(--text-sub); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .btn-icon-soft:hover { background: var(--surface-hover); color: var(--text-main); }
+  .btn-icon-soft svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+  /* Date Switcher */
+  .date-switcher {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card); border-radius: 999px;
+    padding: 7px 16px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.015);
+  }
+  .date-switcher button {
+    background: none; border: none; cursor: pointer; color: var(--text-sub); display: flex; align-items: center;
+  }
+  .date-switcher button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .date-title { font-size: 0.88rem; font-weight: 700; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: 560px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(14px);
+    border-radius: 999px;
+    display: flex; justify-content: space-around; padding: 6px 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    z-index: 50;
+  }
+  .nav-item {
+    border: none; background: none; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 14px; border-radius: 999px; cursor: pointer; color: var(--text-muted);
+    font-family: inherit; font-size: 0.7rem; font-weight: 600; transition: all 0.2s ease;
+  }
+  .nav-item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .nav-item.active { color: var(--teal); background: var(--teal-bg); }
+
+  /* Card */
+  .card {
+    background: var(--card); border-radius: 20px;
+    padding: 22px; margin-bottom: 16px; box-shadow: 0 4px 18px rgba(0,0,0,0.015);
+  }
+  .card-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+  }
+  .card-title { font-size: 0.96rem; font-weight: 700; }
+  .card-sub { font-size: 0.7rem; color: var(--text-sub); }
+
+  /* Timer Box */
+  .timer-box {
+    background: var(--card-subtle); border-radius: 16px;
+    padding: 18px; margin-bottom: 16px; 
+  }
+  .timer-wrap {
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  }
+  .timer-left { flex: 1; padding-left: 5px; }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem; color: var(--text-sub); margin-bottom: 8px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+  .dot.active { animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.25); opacity: 1; } }
+
+  .memo-input-wrap { position: relative; margin-bottom: 12px; }
+  .memo-input {
+    width: 100%; border: none; background: #ffffff;
+    font-size: 0.82rem; color: var(--text-main); font-family: inherit;
+    padding: 8px 12px 8px 32px; border-radius: 10px; box-shadow: inset 0 0 0 1px #e6e3da;
+    transition: all 0.2s ease;
+  }
+  .memo-input:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--teal); }
+  .memo-icon {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; opacity: 0.4; pointer-events: none;
+  }
+  .memo-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .timer-digits { font-size: 2.1rem; font-weight: 700; letter-spacing: 0.02em; }
+  .btn-stop {
+    background: var(--teal); border: none; border-radius: 12px; padding: 10px 20px;
+    font-size: 0.82rem; font-weight: 600; color: #fff; cursor: pointer; font-family: inherit;
+    transition: all 0.15s ease;
+    letter-spacing: 0.1rem;
+  }
+  .btn-stop:disabled { opacity: 0.8; cursor: default; }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; background: var(--card-subtle);
+    border: none; border-radius: 999px; padding: 7px 14px; font-size: 0.8rem; font-weight: 500;
+    cursor: pointer; font-family: inherit; color: var(--text-main); transition: all 0.15s ease;
+  }
+  .chip:hover { background: var(--surface-hover); }
+  .chip.active { background: var(--teal-badge); color: #fff; }
+  .chip svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1; }
+
+  /* Timeline */
+  .timeline-wrap { position: relative; padding-left: 20px; margin-top: 10px; }
+  .timeline-wrap::before {
+    content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: #eae6dc; border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative; padding-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-start;
+    cursor: pointer; border-radius: 8px; padding: 4px 6px 14px 4px; transition: background 0.15s;
+  }
+  .timeline-item:hover { background: rgba(0,0,0,0.015); }
+  .timeline-item:last-child { padding-bottom: 4px; }
+  .timeline-node {
+    position: absolute; left: -20px; top: 9px; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--text-muted);
+  }
+  .timeline-content { flex: 1; padding-right: 10px; }
+  .timeline-time-badge { font-size: 0.7rem; color: var(--text-sub); font-weight: 600; margin-bottom: 2px; }
+  .timeline-title-row { display: flex; align-items: center; gap: 8px; }
+  .timeline-tag {
+    font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: 500;
+    white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  }
+  .timeline-tag svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .timeline-memo { font-size: 0.82rem; color: var(--text-main); }
+  .timeline-dur {
+    font-size: 0.82rem; font-weight: 700; color: var(--text-main); white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* Routines */
+  .routine-item {
+    display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; background: var(--card-subtle);
+    border-radius: 14px; margin-bottom: 8px; font-size: 0.83rem; cursor: pointer; transition: background 0.15s;
+  }
+  .routine-item:hover { background: var(--surface-hover); }
+  .routine-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .routine-left.done span.title { text-decoration: line-through; color: var(--text-muted); }
+  .routine-badge {
+    font-size: 0.68rem; padding: 2px 8px; border-radius: 999px; background: #eae6dc; color: var(--text-sub);
+  }
+  .multi-check-dots { display: flex; gap: 6px; }
+  .check-dot {
+    width: 20px; height: 20px; border-radius: 50%; background: #eae6dc;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 0.65rem; color: #fff;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .check-dot.checked { background: var(--teal); }
+  .check-dot svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 3.5; }
+
+  /* Tasks */
+  .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .text-input, .select-input {
+    flex: 1; padding: 9px 12px; border-radius: 12px; border: none; background: var(--card-subtle);
+    font-family: inherit; font-size: 0.82rem; color: var(--text-main);
+  }
+  .btn-add {
+    padding: 0 16px; border-radius: 12px; border: none; background: var(--card-subtle);
+    cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+  }
+  .btn-add:hover { background: var(--surface-hover); }
+
+  .list-item {
+    display: flex; justify-content: space-between; align-items: center; padding: 9px 4px;
+    border-bottom: 1px solid #f0eee8; font-size: 0.83rem;
+  }
+  .list-item:last-child { border-bottom: none; }
+  .todo-check { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
+  .todo-check.done span { text-decoration: line-through; color: var(--text-muted); }
+  .del-btn-icon {
+    background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .del-btn-icon:hover { color: var(--rest-pink-text); }
+  .del-btn-icon svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* Journal & Mood */
+  .mood-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .mood-btn {
+    padding: 6px 12px; border-radius: 999px; border: none; background: var(--card-subtle);
+    font-size: 0.78rem; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .mood-btn:hover { background: var(--surface-hover); }
+  .mood-btn.selected { background: var(--teal-badge); color: #fff; }
+  .mood-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  textarea {
+    width: 100%; min-height: 90px; border: none; border-radius: 14px; background: var(--card-subtle);
+    padding: 12px; font-family: inherit; font-size: 0.83rem; color: var(--text-main); resize: vertical; line-height: 1.6;
+  }
+  textarea:focus { outline: none; background: #fff; box-shadow: inset 0 0 0 1.5px var(--teal); }
+
+  /* Week Tab */
+  .ring-hero {
+    position: relative; background: var(--card); border-radius: 20px;
+    padding: 24px; text-align: center; margin-bottom: 16px; overflow: hidden;
+  }
+  .ribbon-badge {
+    position: absolute; top: 16px; right: -32px; transform: rotate(45deg);
+    background: #faefd7; color: #574415; font-size: 0.68rem; font-weight: 700;
+    padding: 4px 34px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: none;
+  }
+  .ring-center-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  }
+  .dual-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-badge-box { padding: 16px; border-radius: 16px; }
+  .box-achieved { background: var(--teal-badge); color: var(--yellow-text); }
+  .box-savings { background: var(--yellow-badge); color: var(--yellow-text); }
+
+  /* Month Heatmap Tab */
+  .cal-weekdays {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center;
+    font-size: 0.7rem; font-weight: 700; color: var(--text-sub); margin-bottom: 8px;
+  }
+  .cal-weekdays .sun, .cal-weekdays .sat { color: var(--rest-pink-text); }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px;
+    width: 100%; overflow: hidden;
+  }
+  .cal-cell {
+    aspect-ratio: 0.92; border-radius: 9px; padding: 10px 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: transform 0.15s ease; border: 1px solid transparent;
+    position: relative; overflow: hidden;
+  }
+  .cal-cell:hover { transform: scale(1.04); z-index: 2; }
+  .cal-cell.today { border-color: var(--text-main); }
+  .cal-cell.empty { background: transparent; cursor: default; }
+  .cal-cell.empty:hover { transform: none; }
+  .cal-cell.heat-0 { background: var(--card-subtle); color: var(--text-muted); }
+  .cal-cell.heat-rest { background: var(--rest-pink); color: var(--rest-pink-text); }
+  .cal-cell.heat-1 { background: #d3ede8; color: #164f47; }
+  .cal-cell.heat-2 { background: #86cec1; color: #0d3832; font-weight: 600; }
+  .cal-cell.heat-3 { background: #3fa295; color: #ffffff; font-weight: 600; }
+  .cal-cell.heat-4 { background: #1f6b62; color: #ffffff; font-weight: 700; }
+  .cal-mood-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .cal-mood-center svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    opacity: 0.9;
+  }
+  /* Modals */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; align-items: center; justify-content: center;
+    padding: 16px; z-index: 100; backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: #fff; border-radius: 20px; width: 100%; max-width: 440px; padding: 22px; box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+  }
+  .modal-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  /* Manage List Row */
+  .manage-row {
+    display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+    background: var(--card-subtle); border-radius: 12px; margin-bottom: 6px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .manage-row:hover { background: var(--surface-hover); }
+  .manage-left { display: flex; align-items: center; gap: 10px; flex: 1; line-height:1; }
+  .manage-left svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .manage-right { display: flex; align-items: center; gap: 4px; }
+  .btn-move {
+    background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px;
+    display: flex; align-items: center; justify-content: center; border-radius: 4px;
+  }
+  .btn-move:hover { color: var(--text-main); background: #e6e3da; }
+  .btn-move svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+
+  /* Icon selection grid in modals */
+  .icon-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin: 8px 0;
+  }
+  .icon-opt {
+    aspect-ratio: 1; border-radius: 10px; background: var(--card-subtle); border: none;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-main);
+    transition: all 0.15s ease;
+  }
+  .icon-opt:hover { background: var(--surface-hover); }
+  .icon-opt.selected { background: var(--teal-badge); color: #fff; }
+  .icon-opt svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+  .color-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 8px 0; }
+  .color-opt {
+    aspect-ratio: 1; border-radius: 8px; border: none; cursor: pointer; transition: transform 0.15s;
+  }
+  .color-opt:hover { transform: scale(1.1); }
+  .color-opt.selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--text-main); }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #2b2a28; color: #fff; font-size: 0.78rem; font-weight: 500;
+    padding: 8px 18px; border-radius: 999px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    opacity: 0; pointer-events: none; transition: all 0.25s ease; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-bar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#FFB6C1" stroke="#FFB6C1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paw-print preview-icon"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
+      </div>
+      <div>
+        <h1>Neko Huff Log</h1>
+        <p>Cat Inhalation & Daily Log</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon-soft" id="backupBtn" title="バックアップ / 復元">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      </button>
+      <button class="btn-icon-soft" id="fontToggle" title="フォント切替">Aa</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 1. DAILY VIEW ================= -->
+<main id="viewDaily">
+  <div class="date-switcher">
+    <button id="prevDay"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+    <div class="date-title tnum" id="dateDisplay"></div>
+    <button id="nextDay"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+  </div>
+
+  <!-- Timer -->
+  <section class="card">
+    <div class="timer-box">
+
+	  <div class="status-badge">
+	    <span class="dot" id="statusDot"></span>
+	    <span id="statusText">カテゴリを選んで計測</span>
+	  </div>
+	  <div class="memo-input-wrap">
+	    <span class="memo-icon">
+	      <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+	    </span>
+	    <input type="text" class="memo-input" id="activeMemo" placeholder="作業内容のメモを入力...">
+	  </div>
+	  <div class="timer-wrap">
+      <div class="timer-left">
+        <div class="timer-digits tnum" id="timerDisplay">00:00:00</div>
+      </div>
+      <button class="btn-stop" id="stopBtn" disabled>■ 停止</button>
+      </div>
+    </div>
+
+    <div class="card-header" style="margin-bottom:8px;">
+      <span class="card-sub" style="font-weight:700;letter-spacing:0.06em;">CATEGORIES</span>
+      <button class="btn-icon-soft" id="openCatModalBtn" title="カテゴリ管理">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+    <div class="chips" id="categoryChips"></div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">タイムライン</div>
+        <div class="card-sub" id="totalDailyTime">合計 0m</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-icon-soft" id="addManualLogBtn" title="手動で記録を追加">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button class="btn-icon-soft" id="copyDailyTimelineBtn" title="日報テキストをコピー">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div class="timeline-wrap" id="timelineList"></div>
+  </section>
+
+  <!-- Routines & Tasks -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Routines & Tasks</div>
+        <div class="card-sub">定期ケア・今日やること</div>
+      </div>
+      <button class="btn-icon-soft" id="openRoutineModalBtn" title="ルーティン管理">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+    <div id="todayRoutineList" style="margin-bottom:14px;"></div>
+    <div class="input-row">
+      <input type="text" class="text-input" id="taskInput" placeholder="新しいタスクを追加...">
+      <button class="btn-add" id="addTaskBtn">＋</button>
+    </div>
+    <div id="taskList"></div>
+  </section>
+
+  <!-- Journal -->
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">ひとこと日記</div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn-icon-soft" id="insertDailyToJournalBtn" title="日報タイムラインを日記に挿入">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </button>
+        <button class="btn-icon-soft" id="openMoodModalBtn" title="気分カテゴリ設定">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div class="mood-row" id="moodRow"></div>
+    <textarea id="journalText" placeholder="今日のメモ、ぼやき、記録など..."></textarea>
+  </section>
+</main>
+
+<!-- ================= 2. WEEK VIEW ================= -->
+<main id="viewStats" style="display:none;">
+  <div class="date-switcher">
+    <button id="prevWeekBtn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+    <div class="date-title tnum" id="weekRangeTitle"></div>
+    <button id="nextWeekBtn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+  </div>
+
+  <div class="ring-hero">
+    <div class="ribbon-badge" id="weekRibbon">たっせい！</div>
+    <div style="position:relative;width:170px;height:170px;margin:0 auto 12px;">
+      <svg viewBox="0 0 100 100" style="transform:rotate(-90deg);width:100%;height:100%;">
+        <circle cx="50" cy="50" r="40" stroke="#eeeae0" stroke-width="11" fill="none"/>
+        <circle id="weekRingProgress" cx="50" cy="50" r="40" stroke="var(--teal)" stroke-width="11" fill="none" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"/>
+      </svg>
+      <div class="ring-center-text">
+        <div style="font-size:0.7rem;color:var(--text-sub);">働いた時間</div>
+        <div class="tnum" style="font-size:1.85rem;font-weight:700;line-height:1.1;" id="ringMainHours">0h</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);">/ 40時間</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dual-stat-row">
+    <div class="stat-badge-box box-achieved">
+      <div style="font-size:0.7rem;font-weight:600;">8時間 達成した日</div>
+      <div class="tnum" style="font-size:1.55rem;font-weight:700;margin-top:2px;" id="statAchievedDays">0日</div>
+    </div>
+    <div class="stat-badge-box box-savings">
+      <div style="font-size:0.7rem;font-weight:600;">がんばった貯金</div>
+      <div class="tnum" style="font-size:1.55rem;font-weight:700;margin-top:2px;" id="statSavingsHours">0h</div>
+    </div>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <div class="card-title">毎日の稼働</div>
+      <div class="card-sub">仕事カテゴリのみ集計</div>
+    </div>
+    <div id="weekDaysList"></div>
+  </section>
+</main>
+
+<!-- ================= 3. MONTH VIEW ================= -->
+<main id="viewMonth" style="display:none;">
+  <div class="date-switcher">
+    <button id="prevMonthBtn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+    <div class="date-title tnum" id="monthViewTitle"></div>
+    <button id="nextMonthBtn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+  </div>
+
+  <section class="card">
+    <div class="cal-weekdays">
+      <div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div>
+    </div>
+    <div class="cal-grid" id="calHeatGrid"></div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.7rem;color:var(--text-sub);margin-top:10px;">
+      <span>少</span>
+      <span style="width:13px;height:13px;border-radius:3px;background:#d3ede8;"></span>
+      <span style="width:13px;height:13px;border-radius:3px;background:#86cec1;"></span>
+      <span style="width:13px;height:13px;border-radius:3px;background:#3fa295;"></span>
+      <span style="width:13px;height:13px;border-radius:3px;background:#1f6b62;"></span>
+      <span>多</span>
+      <span style="margin-left:8px;">休</span>
+      <span style="width:13px;height:13px;border-radius:3px;background:var(--rest-pink);"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">なにをがんばったか</div>
+        <div class="card-sub" id="monthTotalLabel">月間合計 0h</div>
+      </div>
+    </div>
+    <div style="height:10px;border-radius:999px;background:#eae6dc;display:flex;overflow:hidden;gap:2px;margin-bottom:14px;" id="monthProgressBar"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="monthCatGrid"></div>
+  </section>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-target="viewDaily">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-clock preview-icon"><path d="M16 14v2.2l1.6 1"/><path d="M16 4h2a2 2 0 0 1 2 2v.832"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2"/><circle cx="16" cy="16" r="6"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+    <span>今日</span>
+  </button>
+  <button class="nav-item" data-target="viewStats">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw-clock preview-icon"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+    <span>週・集計</span>
+  </button>
+  <button class="nav-item" data-target="viewMonth">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check preview-icon"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="m9 15 2 2 4-4"/></svg>
+    <span>月</span>
+  </button>
+</nav>
+
+<div class="toast" id="toastNotice"></div>
+
+<!-- Confirmation Dialog -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box" style="max-width:320px;">
+    <div class="modal-title" style="margin-bottom:8px;">確認</div>
+    <div id="confirmModalMessage" style="font-size:0.85rem;color:var(--text-sub);margin-bottom:16px;"></div>
+    <div class="modal-actions">
+      <button class="btn-icon-soft" id="confirmModalCancelBtn" style="border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;">キャンセル</button>
+      <button class="btn-icon-soft" id="confirmModalOkBtn" style="border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;background-color:rgb(181, 168, 159);color:#fff;">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal-box">
+    <div class="modal-title">カテゴリ管理</div>
+    <div id="catModalList" style="max-height:200px;overflow-y:auto;margin-bottom:16px;"></div>
+
+    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="catFormTitle">新規カテゴリ追加</div>
+    <input type="text" class="text-input" id="catFormName" placeholder="カテゴリ名" style="width:100%;margin-bottom:8px;">
+    
+    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="icon-grid" id="catIconPicker"></div>
+
+    <div style="font-size:0.7rem;color:var(--text-sub);margin:8px 0 4px;">カラーを選択:</div>
+    <div class="color-grid" id="catColorPicker"></div>
+
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-sub);margin:10px 0 14px;">
+      <input type="checkbox" id="catFormIsWork" checked>
+      <label for="catFormIsWork">仕事として稼働集計に含める</label>
+    </div>
+
+    <button class="btn-add" id="catSaveBtn" style="width:100%;padding:9px;background-color:rgb(181, 168, 159);color:#fff;">カテゴリを保存</button>
+    <div class="modal-actions">
+      <button class="btn-icon-soft" id="catCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- Routine Modal -->
+<div class="modal-overlay" id="routineModal">
+  <div class="modal-box">
+    <div class="modal-title">ルーティン管理</div>
+    <div id="routineModalList" style="max-height:180px;overflow-y:auto;margin-bottom:14px;"></div>
+
+    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="routineFormTitle">新規ルーティン作成</div>
+    <input type="text" class="text-input" id="routineFormTitleInput" placeholder="ルーティン名（例：ごはんたくさんたべる💧）" style="width:100%;margin-bottom:8px;">
+
+    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="icon-grid" id="routineIconPicker"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <select class="select-input" id="routineFormFrequency">
+        <option value="daily">毎日</option>
+        <option value="weekday">平日のみ</option>
+        <option value="weekly">特定の曜日</option>
+        <option value="monthly">毎月〇日</option>
+      </select>
+      <select class="select-input" id="routineFormTarget">
+        <option value="1">1日 1回</option>
+        <option value="2">1日 2回</option>
+        <option value="3">1日 3回</option>
+        <option value="4">1日 4回</option>
+      </select>
+    </div>
+
+    <div id="routineWeeklyOption" style="display:none;gap:4px;flex-wrap:wrap;margin-top:8px;">
+      <span style="font-size:0.7rem;color:var(--text-sub);width:100%;">曜日を選択:</span>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="1">月</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="2">火</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="3">水</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="4">木</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="5">金</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="6">土</label>
+      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="0">日</label>
+    </div>
+
+    <div id="routineMonthlyOption" style="display:none;margin-top:8px;">
+      <label style="font-size:0.75rem;color:var(--text-sub);">毎月何日:</label>
+      <input type="number" class="text-input" id="routineFormMonthDay" min="1" max="31" value="1" style="width:70px;margin-left:6px;"> 日
+    </div>
+
+    <button class="btn-add" id="routineSaveBtn" style="width:100%;padding:9px;margin-top:12px;background-color:rgb(181, 168, 159);color:#fff;">ルーティンを保存</button>
+    <div class="modal-actions">
+      <button class="btn-icon-soft" id="routineCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mood Modal -->
+<div class="modal-overlay" id="moodModal">
+  <div class="modal-box">
+    <div class="modal-title">気分カテゴリ設定</div>
+    <div id="moodModalList" style="max-height:180px;overflow-y:auto;margin-bottom:14px;"></div>
+
+    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="moodFormTitle">新規気分追加</div>
+    <input type="text" class="text-input" id="moodFormName" placeholder="気分名（例：すっきり、集中）" style="width:100%;margin-bottom:8px;">
+    
+    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="icon-grid" id="moodIconPicker"></div>
+
+    <button class="btn-add" id="moodSaveBtn" style="width:100%;padding:9px;margin-top:10px;background-color:rgb(181, 168, 159);color:#fff;">気分を保存</button>
+    <div class="modal-actions">
+      <button class="btn-icon-soft" id="moodCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual / Edit Log Modal -->
+<div class="modal-overlay" id="logEditModal">
+  <div class="modal-box">
+    <div class="modal-title" id="logModalTitle">ログの記録・編集</div>
+    <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">カテゴリ</div>
+    <select class="select-input" id="logFormCat" style="width:100%;margin-bottom:10px;"></select>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div>
+        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">開始時刻</div>
+        <input type="time" class="text-input" id="logFormStart" style="width:100%;">
+      </div>
+      <div>
+        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">終了時刻</div>
+        <input type="time" class="text-input" id="logFormEnd" style="width:100%;">
+      </div>
+    </div>
+
+    <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">メモ</div>
+    <input type="text" class="text-input" id="logFormMemo" placeholder="作業内容のメモ" style="width:100%;margin-bottom:14px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn-icon-soft" id="logDeleteBtn" style="color:var(--rest-pink-text);border-radius:8px;padding:6px 12px;width:auto;height:auto;font-size:0.8rem;">削除</button>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-icon-soft" id="logCancelBtn" style="border-radius:8px;padding:6px 12px;width:auto;height:auto;font-size:0.8rem;">キャンセル</button>
+        <button class="btn-icon-soft" id="logSaveBtn" style="background-color:rgb(181, 168, 159);color:#fff;border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backup Modal -->
+<div class="modal-overlay" id="backupModal">
+  <div class="modal-box">
+    <div class="modal-title">バックアップと復元</div>
+    <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:16px;">
+      データは端末のローカルストレージに自動保存されています。定期的にJSONファイルを出力しておくと安心です。
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-add" id="exportJsonBtn" style="padding:10px;text-align:center;">JSONファイルを書き出し</button>
+      <label class="btn-add" style="padding:10px;text-align:center;cursor:pointer;">
+        JSONファイルから復元
+        <input type="file" id="importJsonInput" accept=".json" style="display:none;">
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-icon-soft" id="backupCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Action icons (24 items, geometric minimal line icons, viewBox 0 0 24 24, stroke 1.8)
+const ACTION_ICONS = {
+  // 仕事・学習
+  laptop:  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-minimal preview-icon"><rect width="18" height="12" x="3" y="4" rx="2" ry="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>',
+  check:   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-check preview-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>',
+  idea:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb preview-icon"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+  search:  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-slash preview-icon"><path d="m13.5 8.5-5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+  pen:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil preview-icon"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>',
+  meeting: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-messages-circle preview-icon"><path d="M19.95 10.05a7 7 0 011.412 7.872 1 1 0 00-.058.787l.675 2.089a1 1 0 01-1.236 1.168l-2.155-.631a1 1 0 00-.745.06 7 7 0 01-7.793-1.445"/><path d="M2.696 12.708a1 1 0 00-.058-.785 7 7 0 113.518 3.473 1 1 0 00-.744-.061l-2.155.63a1 1 0 01-1.236-1.167z"/></svg>',
+  
+  // 趣味（猫・植物・漫画）
+  cat:      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cat preview-icon"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"/><path d="M8 14v.5"/><path d="M16 14v.5"/><path d="M11.25 16.25h1.5L12 17l-.75-.75Z"/></svg>',
+  paw:      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paw-print preview-icon"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>',
+  plant:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sprout preview-icon"><path d="M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3"/><path d="M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4"/><path d="M5 21h14"/></svg>',
+  water:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-faucet preview-icon"><path d="M10.083 5.428 5.57 4.083a2 2 0 10.001 3.834l4.512-1.345"/><path d="M12 8v3"/><path d="m13.917 5.428 4.511-1.345a2 2 0 110 3.834l-4.51-1.345"/><path d="M18 17v-4.006"/><path d="M22 11v8"/><path d="M22 12h-3a1 1 0 00-1 .994h-2.539a4 4 0 00-6.915-.012L7 13a5 5 0 00-5 5v1a1 1 0 001 1h2a1 1 0 001-1v-1a1 1 0 01.995-1l1.552.018a4 4 0 006.907 0L18 17a1 1 0 001 1h3"/><circle cx="12" cy="6" r="2"/></svg>',
+  book:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open preview-icon"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/></svg>',
+  music:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eighth-note preview-icon"><path d="m19 6-5.2-3.9a.5.5 0 0 0-.8.4V18"/><circle cx="9" cy="18" r="4"/></svg>',
+  game:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-gamepad-2 preview-icon"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>',
+  
+  // 休息・生活
+  meal:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils preview-icon"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
+  cake:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cupcake preview-icon"><path d="M12 22v-9"/><path d="M14 4h1a3 3 0 013 3l-.004.125A4 4 0 0121 11v2"/><path d="m15.5 22 1.5-9"/><path d="M21 13a1 1 0 01.919 1.394l-2.74 6.394A2 2 0 0117.34 22H6.659a2 2 0 01-1.838-1.212l-2.74-6.394A1 1 0 013 13z"/><path d="M3 13v-2a4 4 0 013.003-3.875L6 7a3 3 0 013-3h1"/><path d="M8.5 22 7 13"/><circle cx="12" cy="4" r="2"/></svg>',
+  teatime:  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee preview-icon"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>',
+  cooking:  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chef-hat preview-icon"><path d="M10 11v5"/><path d="M14 11v5"/><path d="M6 12.65c0-.457-.316-.844-.727-1.041A4 4 0 017.52 4.034a1.53 1.53 0 001.367-.547 4 4 0 016.225 0 1.53 1.53 0 001.367.547 4 4 0 012.248 7.575c-.411.197-.727.584-.727 1.04V19a2 2 0 01-2 2H8a2 2 0 01-2-2z"/><path d="M6 16h12"/></svg>',
+  cleaning: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-broom-sparkles preview-icon"><path d="M11 2v2"/><path d="M12 3h-2"/><path d="M13.5 10.5 22 2"/><path d="M14.734 13.841a2 2 0 00-.314-2.42L12.58 9.58a2 2 0 00-2.421-.314l-7.657 4.461A1 1 0 002.3 15.3l6.403 6.403a1 1 0 001.571-.204z"/><path d="M20 15v4"/><path d="M22 17h-4"/><path d="M4 4v4"/><path d="m5 18 2-2"/><path d="M6 6H2"/><path d="m7.699 10.7 5.602 5.601"/></svg>',
+  bath:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bath preview-icon"><path d="M10 4 8 6"/><path d="M17 19v2"/><path d="M2 12h20"/><path d="M7 19v2"/><path d="M9 5 7.621 3.621A2.121 2.121 0 0 0 4 5v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg>',
+  bed:      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bed-single preview-icon"><path d="M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8"/><path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/><path d="M3 18h18"/></svg>',
+  sleeping: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-closed preview-icon"><path d="m15 18-.722-3.25"/><path d="M2 8a10.645 10.645 0 0 0 20 0"/><path d="m20 15-1.726-2.05"/><path d="m4 15 1.726-2.05"/><path d="m9 18 .722-3.25"/></svg>',
+  shopping: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart preview-icon"><path d="m2.05 2.05 1.099-.028a1 1 0 0 1 1.008.815l2.69 14.347A1 1 0 0 0 7.83 18H18"/><path d="M4.563 5h16.435a1 1 0 0 1 .981 1.204l-1.026 6.226A2 2 0 0 1 18.962 14H6.25"/><circle cx="18" cy="20" r="2"/><circle cx="8" cy="20" r="2"/></svg>',
+  train:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tram-front preview-icon"><rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h.01"/><path d="M16 15h.01"/></svg>',
+  walking:  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-footprints preview-icon"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg>'
+};
+
+// Mood icons (20 items, clean natural & mental symbols)
+const MOOD_ICONS = {
+  happy:   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-face-grinning preview-icon"><path d="M15 10V9"/><path d="M7.084 14.302a5.12 5.12 0 009.833 0 .24.24 0 00-.235-.302H7.32a.24.24 0 00-.235.302"/><path d="M9 10V9"/><circle cx="12" cy="12" r="10"/></svg>',
+  smile:   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-face-slightly-smiling preview-icon"><path d="M15 10V9"/><path d="M16.472 15a6 6 0 01-8.943 0"/><path d="M9 10V9"/><circle cx="12" cy="12" r="10"/></svg>',
+  neutral: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-face-neutral preview-icon"><path d="M15 10V9"/><path d="M8 16h8"/><path d="M9 10V9"/><circle cx="12" cy="12" r="10"/></svg>',
+  sad:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-face-slightly-frowning preview-icon"><path d="M15 10V9"/><path d="M9 10V9"/><path d="M9 16a5 5 0 016 0"/><circle cx="12" cy="12" r="10"/></svg>',
+  annoy:   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-face-expressionless preview-icon"><path d="M14 10h2"/><path d="M8 10h2"/><path d="M8 16h8"/><circle cx="12" cy="12" r="10"/></svg>',
+  bone:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-skull preview-icon"><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="12" r="1"/></svg>',
+  heart:   '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart preview-icon"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>',
+  star:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star preview-icon"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>',
+  sparkle: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-astroid preview-icon"><path d="M12.983 21.186a1 1 0 0 1-1.966 0 10 10 0 0 0-8.203-8.203 1 1 0 0 1 0-1.966 10 10 0 0 0 8.203-8.203 1 1 0 0 1 1.966 0 10 10 0 0 0 8.203 8.203 1 1 0 0 1 0 1.966 10 10 0 0 0-8.203 8.203"/></svg>',
+  wet:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplet preview-icon"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>',
+  leaf:    '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-leaf preview-icon"><path d="M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20"/><path d="M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13"/></svg>',
+  etc:     '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis preview-icon"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>'
+  };
+
+const PRESET_COLORS = [
+  '#CEC5C0', '#B5A89F', '#BDB7A4', '#D1C5B3', '#C4A4A1', '#D6A3A3', '#9E7B7B', '#C77D7D',
+  '#A0B59D', '#88a096', '#4C6B3C', '#DADCD7', '#999690', '#826138', '#c97e63', '#C5A9A5'
+];
+	
+const STORAGE_KEY = 'neko_huff_data';
+
+const DEFAULT_CATEGORIES = [
+  { id: 'c1', name: 'わっちょい', color: '#7c90a0', icon: 'search', isWork: true },
+  { id: 'c2', name: 'ねこ吸い', color: '#d48c70', icon: 'cat', isWork: false },
+  { id: 'c3', name: 'ねこ', color: '#d48c70', icon: 'cat', isWork: false },
+  { id: 'c4', name: '吸い', color: '#d48c70', icon: 'cat', isWork: false },  
+  { id: 'c5', name: '吸え！！！', color: '#d48c70', icon: 'cat', isWork: false },
+  { id: 'c6', name: 'うまい', color: '#d48c70', icon: 'cat', isWork: false },  
+  { id: 'c7', name: 'うまいよ', color: '#d48c70', icon: 'cat', isWork: false },
+  { id: 'c8', name: 'ぷよーん', color: '#e6a5a5', icon: 'bed', isWork: false }
+];
+
+const DEFAULT_ROUTINES = [
+  { id: 'r1', title: 'やきとりうまい', frequency: 'daily', target: 3, icon: 'water' },
+  { id: 'r2', title: '葉水', frequency: 'weekday', target: 1, icon: 'plant' }
+];
+
+const DEFAULT_MOODS = [
+  { id: 'm1', name: 'ﾎﾟﾖﾎﾟﾖ', icon: 'leaf' },
+  { id: 'm2', name: '無双・集中', icon: 'sparkle' },
+  { id: 'm3', name: 'まったり', icon: 'cup' },
+  { id: 'm4', name: 'ﾋﾟｮｴｪ', icon: 'bulb' },
+  { id: 'm5', name: 'ねむい', icon: 'moon' }
+];
+
+let currentDate = new Date();
+let currentViewWeek = new Date();
+let currentViewMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+let activeTimer = null;
+let timerInterval = null;
+
+let editingCatId = null;
+let editingRoutineId = null;
+let editingMoodId = null;
+let editingLogId = null;
+
+function getLocalDateKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function loadStore() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { return JSON.parse(raw); } catch (e) { console.error(e); }
+  }
+  return {
+    categories: DEFAULT_CATEGORIES,
+    routines: DEFAULT_ROUTINES,
+    moods: DEFAULT_MOODS,
+    softFont: false,
+    days: {}
+  };
+}
+
+function saveStore(store) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+
+function getDayData(store, key) {
+  if (!store.days[key]) {
+    store.days[key] = { logs: [], tasks: [], routineChecks: {}, mood: '', journal: '' };
+  }
+  return store.days[key];
+}
+
+function formatDuration(sec) {
+  if (sec < 60) return `${sec}s`;
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function formatClock(sec) {
+  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+function formatTimeOnly(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toastNotice');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showConfirm(msg, onOk) {
+  const modal = document.getElementById('confirmModal');
+  document.getElementById('confirmModalMessage').textContent = msg;
+  modal.style.display = 'flex';
+  modal.style.zIndex = '500';
+  const okBtn = document.getElementById('confirmModalOkBtn');
+  const cancelBtn = document.getElementById('confirmModalCancelBtn');
+  
+  const clean = () => {
+    modal.style.display = 'none';
+    okBtn.onclick = null;
+    cancelBtn.onclick = null;
+  };
+  okBtn.onclick = () => { clean(); onOk(); };
+  cancelBtn.onclick = clean;
+}
+
+/* Nav Switching */
+document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = btn.dataset.target;
+    ['viewDaily', 'viewStats', 'viewMonth'].forEach(id => {
+      document.getElementById(id).style.display = (id === target) ? 'block' : 'none';
+    });
+    if (target === 'viewDaily') renderDailyView();
+    if (target === 'viewStats') renderWeekView();
+    if (target === 'viewMonth') renderMonthView();
+  };
+});
+
+/* Timer & Categories */
+function startTimer(catId) {
+  if (activeTimer) stopTimer();
+  const store = loadStore();
+  const memo = document.getElementById('activeMemo').value.trim();
+  const now = Date.now();
+  activeTimer = { catId, start: now, memo };
+  document.getElementById('stopBtn').disabled = false;
+
+  const cat = store.categories.find(c => c.id === catId);
+  const dot = document.getElementById('statusDot');
+  dot.style.background = cat ? cat.color : '#a6a49e';
+  dot.classList.add('active');
+  document.getElementById('statusText').textContent = `${cat ? cat.name : ''} を計測中`;
+
+  renderDailyChips();
+  timerInterval = setInterval(() => {
+    const sec = Math.max(1, Math.floor((Date.now() - activeTimer.start) / 1000));
+    document.getElementById('timerDisplay').textContent = formatClock(sec);
+  }, 500);
+}
+
+function stopTimer() {
+  if (!activeTimer) return;
+  clearInterval(timerInterval);
+  const endTime = Date.now();
+  const sec = Math.max(1, Math.floor((endTime - activeTimer.start) / 1000));
+  const store = loadStore();
+  const key = getLocalDateKey(new Date(activeTimer.start));
+  const day = getDayData(store, key);
+  const memo = document.getElementById('activeMemo').value.trim();
+
+  day.logs.push({
+    id: 'l_' + Date.now(),
+    catId: activeTimer.catId,
+    startTime: activeTimer.start,
+    endTime: endTime,
+    sec,
+    memo
+  });
+  saveStore(store);
+
+  activeTimer = null;
+  document.getElementById('timerDisplay').textContent = '00:00:00';
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('statusDot').style.background = 'var(--text-muted)';
+  document.getElementById('statusDot').classList.remove('active');
+  document.getElementById('statusText').textContent = 'カテゴリを選んで計測';
+  document.getElementById('activeMemo').value = '';
+
+  renderDailyView();
+}
+document.getElementById('stopBtn').onclick = stopTimer;
+
+function renderDailyChips() {
+  const store = loadStore();
+  const wrap = document.getElementById('categoryChips');
+  wrap.innerHTML = '';
+  store.categories.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (activeTimer && activeTimer.catId === c.id ? ' active' : '');
+    const iconSvg = ACTION_ICONS[c.icon] || '<span class="chip-dot" style="background:'+c.color+'"></span>';
+    btn.innerHTML = `${iconSvg}<span>${c.name}</span>`;
+    btn.onclick = () => {
+      if (activeTimer && activeTimer.catId === c.id) stopTimer();
+      else startTimer(c.id);
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+/* Daily View Render */
+function renderDailyView() {
+  const store = loadStore();
+  document.body.classList.toggle('soft-font', !!store.softFont);
+
+  const key = getLocalDateKey(currentDate);
+  const daysJP = ['日','月','火','水','木','金','土'];
+  document.getElementById('dateDisplay').textContent =
+    `${key.replace(/-/g, '.')} (${daysJP[currentDate.getDay()]})`;
+
+  const day = getDayData(store, key);
+  renderDailyChips();
+
+  // Timeline
+  const sortedLogs = [...day.logs].sort((a, b) => (a.startTime || 0) - (b.startTime || 0));
+  const tList = document.getElementById('timelineList');
+  tList.innerHTML = '';
+  let grandTotal = 0;
+
+  if (sortedLogs.length === 0) {
+    tList.innerHTML = '<div style="font-size:0.78rem;color:var(--text-muted);padding:8px 0;">まだ本日の記録はありません</div>';
+  } else {
+    sortedLogs.forEach(l => {
+      grandTotal += l.sec;
+      const c = store.categories.find(x => x.id === l.catId) || { name: 'その他', color: '#a6a49e', icon: 'check' };
+      const timeStr = l.startTime && l.endTime
+        ? `${formatTimeOnly(l.startTime)} - ${formatTimeOnly(l.endTime)}`
+        : '記録';
+      const catIcon = ACTION_ICONS[c.icon] || '';
+
+      const row = document.createElement('div');
+      row.className = 'timeline-item';
+      row.innerHTML = `
+        <div class="timeline-node" style="border-color:${c.color};"></div>
+        <div class="timeline-content">
+          <div class="timeline-time-badge tnum">${timeStr}</div>
+          <div class="timeline-title-row">
+            <span class="timeline-tag" style="background:${c.color}22;color:${c.color};">${catIcon}${c.name}</span>
+            <span class="timeline-memo">${l.memo || ''}</span>
+          </div>
+        </div>
+        <div class="timeline-dur tnum">${formatDuration(l.sec)}</div>
+      `;
+      row.onclick = () => openLogEditModal(l);
+      tList.appendChild(row);
+    });
+  }
+  document.getElementById('totalDailyTime').textContent = `合計 ${formatDuration(grandTotal)}`;
+
+  // Routines
+  const rWrap = document.getElementById('todayRoutineList');
+  rWrap.innerHTML = '';
+  const dayOfWeek = currentDate.getDay();
+  const dayOfMonth = currentDate.getDate();
+
+  const activeRoutines = store.routines.filter(r => {
+    if (r.frequency === 'daily') return true;
+    if (r.frequency === 'weekday') return dayOfWeek >= 1 && dayOfWeek <= 5;
+    if (r.frequency === 'weekly' && r.days) return r.days.includes(dayOfWeek);
+    if (r.frequency === 'monthly' && r.monthDay) return r.monthDay === dayOfMonth;
+    return true;
+  });
+
+  if (activeRoutines.length === 0) {
+    rWrap.innerHTML = '<div style="font-size:0.78rem;color:var(--text-muted);padding:4px 0;">今日の定期ルーティンはありません</div>';
+  } else {
+    activeRoutines.forEach(r => {
+      const checkedCount = day.routineChecks[r.id] || 0;
+      const isDone = checkedCount >= r.target;
+      const rIcon = ACTION_ICONS[r.icon] || '';
+
+      const item = document.createElement('div');
+      item.className = 'routine-item';
+
+      let dotsHtml = '';
+      for (let i = 1; i <= r.target; i++) {
+        const isC = i <= checkedCount;
+        dotsHtml += `<span class="check-dot ${isC ? 'checked' : ''}" data-idx="${i}">
+          ${isC ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+        </span>`;
+      }
+
+      item.innerHTML = `
+        <div class="routine-left ${isDone ? 'done' : ''}">
+          <span style="display:flex;align-items:center;color:var(--text-sub);">${rIcon}</span>
+          <span class="title">${r.title}</span>
+          <span class="routine-badge">${r.target > 1 ? `${checkedCount}/${r.target}回` : 'チェック'}</span>
+        </div>
+        <div class="multi-check-dots">${dotsHtml}</div>
+      `;
+
+      item.querySelectorAll('.check-dot').forEach(dot => {
+        dot.onclick = (e) => {
+          e.stopPropagation();
+          const idx = parseInt(dot.dataset.idx, 10);
+          day.routineChecks[r.id] = (checkedCount === idx) ? idx - 1 : idx;
+          saveStore(store);
+          renderDailyView();
+        };
+      });
+
+      item.onclick = () => {
+        openRoutineModal();
+        editRoutine(r.id);
+      };
+
+      rWrap.appendChild(item);
+    });
+  }
+
+  // Tasks
+  const taskWrap = document.getElementById('taskList');
+  taskWrap.innerHTML = '';
+  day.tasks.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `
+      <div class="todo-check ${t.done ? 'done' : ''}">
+        <input type="checkbox" ${t.done ? 'checked' : ''}>
+        <span>${t.text}</span>
+      </div>
+      <button class="del-btn-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    `;
+    div.querySelector('.todo-check').onclick = () => {
+      t.done = !t.done; saveStore(store); renderDailyView();
+    };
+    div.querySelector('.del-btn-icon').onclick = () => {
+      showConfirm(`タスク「${t.text}」を削除しますか？`, () => {
+        day.tasks = day.tasks.filter(x => x.id !== t.id);
+        saveStore(store); renderDailyView();
+      });
+    };
+    taskWrap.appendChild(div);
+  });
+
+  // Moods & Journal
+  const mRow = document.getElementById('moodRow');
+  mRow.innerHTML = '';
+  store.moods.forEach(m => {
+    const b = document.createElement('button');
+    const isSel = day.mood === m.name;
+    b.className = 'mood-btn' + (isSel ? ' selected' : '');
+    const mIcon = MOOD_ICONS[m.icon] || '';
+    b.innerHTML = `${mIcon}<span>${m.name}</span>`;
+    b.onclick = () => {
+      day.mood = isSel ? '' : m.name;
+      saveStore(store); renderDailyView();
+    };
+    mRow.appendChild(b);
+  });
+  document.getElementById('journalText').value = day.journal || '';
+}
+
+/* Week View Render */
+function renderWeekView() {
+  const store = loadStore();
+  const dayOfWeek = currentViewWeek.getDay();
+  const monday = new Date(currentViewWeek);
+  monday.setDate(currentViewWeek.getDate() - ((dayOfWeek + 6) % 7));
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  document.getElementById('weekRangeTitle').textContent =
+    `${monday.getMonth()+1}/${monday.getDate()} - ${sunday.getMonth()+1}/${sunday.getDate()}`;
+
+  let weekWorkSec = 0;
+  let achievedCount = 0;
+  const daysListWrap = document.getElementById('weekDaysList');
+  daysListWrap.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const cur = new Date(monday);
+    cur.setDate(monday.getDate() + i);
+    const key = getLocalDateKey(cur);
+    const day = store.days[key];
+
+    let dayWorkSec = 0;
+    if (day && day.logs) {
+      day.logs.forEach(l => {
+        const cat = store.categories.find(c => c.id === l.catId);
+        if (!cat || cat.isWork !== false) dayWorkSec += l.sec;
+      });
+    }
+
+    const hours = (dayWorkSec / 3600);
+    weekWorkSec += dayWorkSec;
+    if (hours >= 8.0) achievedCount++;
+
+    const isWeekend = (cur.getDay() === 0 || cur.getDay() === 6);
+    const dayName = ['日','月','火','水','木','金','土'][cur.getDay()];
+    const pct = Math.min(100, Math.round((hours / 8.0) * 100));
+
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:10px 0;border-bottom:1px solid #f0eee8;';
+    item.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin-bottom:4px;">
+        <span style="font-weight:600;${isWeekend ? 'color:var(--rest-pink-text);' : ''}">${dayName} ${cur.getMonth()+1}/${cur.getDate()}</span>
+        <span class="tnum" style="font-weight:700;">${hours > 0 ? hours.toFixed(1).replace('.0','') + 'h' : 'おやすみ'}</span>
+      </div>
+      <div style="height:6px;background:#eae6dc;border-radius:999px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${hours >= 8 ? 'var(--teal)' : 'var(--text-muted)'};"></div>
+      </div>
+    `;
+    daysListWrap.appendChild(item);
+  }
+
+  const weekHours = (weekWorkSec / 3600);
+  document.getElementById('ringMainHours').textContent = `${weekHours.toFixed(1).replace('.0','')}h`;
+  document.getElementById('statAchievedDays').textContent = `${achievedCount}日`;
+  const savings = Math.max(0, weekHours - 40).toFixed(1).replace('.0','');
+  document.getElementById('statSavingsHours').textContent = `${savings}h`;
+
+  document.getElementById('weekRibbon').style.display = (weekHours >= 40.0) ? 'block' : 'none';
+  const offset = Math.max(0, 251.2 - (251.2 * (weekHours / 40)));
+  document.getElementById('weekRingProgress').style.strokeDashoffset = offset;
+}
+
+document.getElementById('prevWeekBtn').onclick = () => {
+  currentViewWeek.setDate(currentViewWeek.getDate() - 7);
+  renderWeekView();
+};
+document.getElementById('nextWeekBtn').onclick = () => {
+  currentViewWeek.setDate(currentViewWeek.getDate() + 7);
+  renderWeekView();
+};
+
+/* Month View Render */
+function renderMonthView() {
+  const store = loadStore();
+  const year = currentViewMonth.getFullYear();
+  const month = currentViewMonth.getMonth();
+  document.getElementById('monthViewTitle').textContent = `${year}年${month + 1}月`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const grid = document.getElementById('calHeatGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    grid.appendChild(empty);
+  }
+
+  let monthSec = 0;
+  const monthCats = {};
+
+  for (let d = 1; d <= totalDays; d++) {
+    const cur = new Date(year, month, d);
+    const key = getLocalDateKey(cur);
+    const day = store.days[key];
+    const isWeekend = (cur.getDay() === 0 || cur.getDay() === 6);
+    let dSec = 0;
+    if (day) {
+      day.logs.forEach(l => {
+        const cat = store.categories.find(c => c.id === l.catId);
+        if (!cat || cat.isWork !== false) {
+          dSec += l.sec;
+          monthSec += l.sec;
+        }
+        monthCats[l.catId] = (monthCats[l.catId] || 0) + l.sec;
+      });
+    }
+    const hours = (dSec / 3600);
+
+    let heatClass = 'heat-0';
+    if (hours > 0) {
+      if (hours >= 9.0) heatClass = 'heat-4';
+      else if (hours >= 6.0) heatClass = 'heat-3';
+      else if (hours >= 3.0) heatClass = 'heat-2';
+      else heatClass = 'heat-1';
+    } else if (isWeekend) {
+      heatClass = 'heat-rest';
+    }
+
+    let moodCenterSvg = '';
+    if (day && day.mood) {
+      const mObj = store.moods.find(m => m.name === day.mood);
+      if (mObj && MOOD_ICONS[mObj.icon]) {
+        moodCenterSvg = MOOD_ICONS[mObj.icon];
+      }
+    }
+
+    const cell = document.createElement('div');
+    cell.className = `cal-cell ${heatClass} tnum`;
+    cell.innerHTML = `
+      <div style="font-weight:600;font-size:0.72rem;line-height:1;">${d}</div>
+      <div class="cal-mood-center">${moodCenterSvg}</div>
+      <div style="font-size:0.65rem;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${hours > 0 ? (hours >= 1 ? hours.toFixed(1).replace('.0','')+'h' : Math.round(dSec/60)+'m') : ''}</div>
+    `;
+    cell.onclick = () => {
+      currentDate = new Date(year, month, d);
+      document.querySelector('[data-target="viewDaily"]').click();
+    };
+    grid.appendChild(cell);
+  } // ←★この閉じカッコが重要！ここでカレンダーの日付生成は終了
+
+  // --- ここから下はループの外で1回だけ実行する集計 ---
+  let privateSec = 0;
+  let allTotalSec = 0;
+  store.categories.forEach(c => {
+    const s = monthCats[c.id] || 0;
+    allTotalSec += s;
+    if (c.isWork === false) {
+      privateSec += s;
+    }
+  });
+
+  const wStr = (monthSec / 3600).toFixed(1).replace('.0','') + 'h';
+  const pStr = (privateSec / 3600).toFixed(1).replace('.0','') + 'h';
+  const tStr = (allTotalSec / 3600).toFixed(1).replace('.0','') + 'h';
+
+  document.getElementById('monthTotalLabel').textContent = `仕事 * ${wStr}　プライベート * ${pStr} （合計 ${tStr}）`;
+
+  const pBar = document.getElementById('monthProgressBar');
+  const catGrid = document.getElementById('monthCatGrid');
+  pBar.innerHTML = '';
+  catGrid.innerHTML = '';
+
+  store.categories.forEach(c => {
+    const s = monthCats[c.id] || 0;
+    if (s > 0) {
+      const pct = allTotalSec > 0 ? Math.round((s / allTotalSec) * 100) : 0;
+      const seg = document.createElement('div');
+      seg.style.width = `${pct}%`;
+      seg.style.background = c.color;
+      pBar.appendChild(seg);
+
+      const box = document.createElement('div');
+      box.style.cssText = 'padding:8px 12px;background:var(--card-subtle);border-radius:12px;font-size:0.76rem;display:flex;justify-content:space-between;align-items:center;';
+      const cIcon = ACTION_ICONS[c.icon] || '';
+      box.innerHTML = `<span style="display:flex;align-items:center;gap:6px;"><span style="color:${c.color}; line-height: 1;">${cIcon}</span>${c.name}</span><strong>${formatDuration(s)}</strong>`;
+      catGrid.appendChild(box);
+    }
+  });
+} // ← renderMonthView の終わり
+
+document.getElementById('prevMonthBtn').onclick = () => {
+  currentViewMonth.setMonth(currentViewMonth.getMonth() - 1);
+  renderMonthView();
+};
+document.getElementById('nextMonthBtn').onclick = () => {
+  currentViewMonth.setMonth(currentViewMonth.getMonth() + 1);
+  renderMonthView();
+};
+
+/* Log Manual & Edit Modal */
+function openLogEditModal(log = null) {
+  const store = loadStore();
+  const modal = document.getElementById('logEditModal');
+  const catSel = document.getElementById('logFormCat');
+  catSel.innerHTML = '';
+  store.categories.forEach(c => {
+    catSel.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+  });
+
+  if (log) {
+    editingLogId = log.id;
+    document.getElementById('logModalTitle').textContent = 'ログの編集';
+    catSel.value = log.catId;
+    document.getElementById('logFormStart').value = formatTimeOnly(log.startTime);
+    document.getElementById('logFormEnd').value = formatTimeOnly(log.endTime);
+    document.getElementById('logFormMemo').value = log.memo || '';
+    document.getElementById('logDeleteBtn').style.display = 'block';
+  } else {
+    editingLogId = null;
+    document.getElementById('logModalTitle').textContent = '手動でログを記録';
+    const now = new Date();
+    const prev = new Date(now.getTime() - 30 * 60000);
+    document.getElementById('logFormStart').value = formatTimeOnly(prev.getTime());
+    document.getElementById('logFormEnd').value = formatTimeOnly(now.getTime());
+    document.getElementById('logFormMemo').value = '';
+    document.getElementById('logDeleteBtn').style.display = 'none';
+  }
+  modal.style.display = 'flex';
+}
+
+document.getElementById('addManualLogBtn').onclick = () => openLogEditModal(null);
+document.getElementById('logCancelBtn').onclick = () => { document.getElementById('logEditModal').style.display = 'none'; };
+
+document.getElementById('logSaveBtn').onclick = () => {
+  const store = loadStore();
+  const day = getDayData(store, getLocalDateKey(currentDate));
+  const catId = document.getElementById('logFormCat').value;
+  const startStr = document.getElementById('logFormStart').value;
+  const endStr = document.getElementById('logFormEnd').value;
+  const memo = document.getElementById('logFormMemo').value.trim();
+
+  if (!startStr || !endStr) return alert("開始・終了時刻を入力してください");
+
+  const [sh, sm] = startStr.split(':').map(Number);
+  const [eh, em] = endStr.split(':').map(Number);
+  const startTs = new Date(currentDate).setHours(sh, sm, 0, 0);
+  let endTs = new Date(currentDate).setHours(eh, em, 0, 0);
+  if (endTs <= startTs) endTs += 24 * 3600000;
+  const sec = Math.max(60, Math.floor((endTs - startTs) / 1000));
+
+  if (editingLogId) {
+    const l = day.logs.find(x => x.id === editingLogId);
+    if (l) { l.catId = catId; l.startTime = startTs; l.endTime = endTs; l.sec = sec; l.memo = memo; }
+  } else {
+    day.logs.push({ id: 'l_' + Date.now(), catId, startTime: startTs, endTime: endTs, sec, memo });
+  }
+
+  saveStore(store);
+  document.getElementById('logEditModal').style.display = 'none';
+  renderDailyView();
+};
+
+document.getElementById('logDeleteBtn').onclick = () => {
+  showConfirm("この記録を削除しますか？", () => {
+    const store = loadStore();
+    const day = getDayData(store, getLocalDateKey(currentDate));
+    day.logs = day.logs.filter(x => x.id !== editingLogId);
+    saveStore(store);
+    document.getElementById('logEditModal').style.display = 'none';
+    renderDailyView();
+  });
+};
+
+/* Category Modal & Reorder */
+let selectedCatIcon = 'laptop';
+let selectedCatColor = PRESET_COLORS[0];
+
+function openCatModal() {
+  renderCatModalList();
+  renderCatIconPicker();
+  renderCatColorPicker();
+  resetCatForm();
+  document.getElementById('catModal').style.display = 'flex';
+}
+
+function resetCatForm() {
+  editingCatId = null;
+  document.getElementById('catFormTitle').textContent = '新規カテゴリ追加';
+  document.getElementById('catFormName').value = '';
+  document.getElementById('catFormIsWork').checked = true;
+  selectedCatIcon = 'laptop';
+  selectedCatColor = PRESET_COLORS[0];
+  renderCatIconPicker();
+  renderCatColorPicker();
+}
+
+function renderCatIconPicker() {
+  const wrap = document.getElementById('catIconPicker');
+  wrap.innerHTML = '';
+  Object.keys(ACTION_ICONS).forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'icon-opt' + (selectedCatIcon === k ? ' selected' : '');
+    btn.innerHTML = ACTION_ICONS[k];
+    btn.onclick = () => { selectedCatIcon = k; renderCatIconPicker(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderCatColorPicker() {
+  const wrap = document.getElementById('catColorPicker');
+  wrap.innerHTML = '';
+  PRESET_COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'color-opt' + (selectedCatColor === c ? ' selected' : '');
+    btn.style.background = c;
+    btn.onclick = () => { selectedCatColor = c; renderCatColorPicker(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderCatModalList() {
+  const store = loadStore();
+  const wrap = document.getElementById('catModalList');
+  wrap.innerHTML = '';
+  store.categories.forEach((c, idx) => {
+    const row = document.createElement('div');
+    row.className = 'manage-row';
+    const iconSvg = ACTION_ICONS[c.icon] || '';
+    row.innerHTML = `
+      <div class="manage-left">
+        <span style="color:${c.color};">${iconSvg}</span>
+        <span>${c.name}</span>
+        <span style="font-size:0.7rem;color:var(--text-sub);">${c.isWork ? '仕事' : 'プライベート'}</span>
+      </div>
+      <div class="manage-right">
+        <button class="btn-move move-up"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+        <button class="btn-move move-down"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <button class="del-btn-icon btn-del"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+    `;
+
+    row.onclick = () => {
+      editingCatId = c.id;
+      document.getElementById('catFormTitle').textContent = 'カテゴリの編集';
+      document.getElementById('catFormName').value = c.name;
+      document.getElementById('catFormIsWork').checked = c.isWork !== false;
+      selectedCatIcon = c.icon || 'laptop';
+      selectedCatColor = c.color || PRESET_COLORS[0];
+      renderCatIconPicker();
+      renderCatColorPicker();
+    };
+
+    row.querySelector('.move-up').onclick = (e) => {
+      e.stopPropagation();
+      if (idx > 0) {
+        const tmp = store.categories[idx];
+        store.categories[idx] = store.categories[idx-1];
+        store.categories[idx-1] = tmp;
+        saveStore(store); renderCatModalList(); renderDailyChips();
+      }
+    };
+    row.querySelector('.move-down').onclick = (e) => {
+      e.stopPropagation();
+      if (idx < store.categories.length - 1) {
+        const tmp = store.categories[idx];
+        store.categories[idx] = store.categories[idx+1];
+        store.categories[idx+1] = tmp;
+        saveStore(store); renderCatModalList(); renderDailyChips();
+      }
+    };
+    row.querySelector('.btn-del').onclick = (e) => {
+      e.stopPropagation();
+      if (store.categories.length <= 1) return alert("カテゴリは最低1つ必要です");
+      showConfirm(`カテゴリ「${c.name}」を削除しますか？`, () => {
+        store.categories = store.categories.filter(x => x.id !== c.id);
+        saveStore(store); renderCatModalList(); renderDailyChips();
+      });
+    };
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById('openCatModalBtn').onclick = openCatModal;
+document.getElementById('catCloseBtn').onclick = () => { document.getElementById('catModal').style.display = 'none'; renderDailyView(); };
+
+document.getElementById('catSaveBtn').onclick = () => {
+  const name = document.getElementById('catFormName').value.trim();
+  const isWork = document.getElementById('catFormIsWork').checked;
+  if (!name) return;
+  const store = loadStore();
+  if (editingCatId) {
+    const c = store.categories.find(x => x.id === editingCatId);
+    if (c) { c.name = name; c.icon = selectedCatIcon; c.color = selectedCatColor; c.isWork = isWork; }
+  } else {
+    store.categories.push({ id: 'c_' + Date.now(), name, icon: selectedCatIcon, color: selectedCatColor, isWork });
+  }
+  saveStore(store);
+  renderCatModalList();
+  renderDailyChips();
+  resetCatForm();
+};
+
+/* Routine Modal & Reorder */
+let selectedRoutineIcon = 'eyedrop';
+
+function openRoutineModal() {
+  renderRoutineModalList();
+  renderRoutineIconPicker();
+  resetRoutineForm();
+  document.getElementById('routineModal').style.display = 'flex';
+}
+
+function resetRoutineForm() {
+  editingRoutineId = null;
+  document.getElementById('routineFormTitle').textContent = '新規ルーティン作成';
+  document.getElementById('routineFormTitleInput').value = '';
+  document.getElementById('routineFormFrequency').value = 'daily';
+  document.getElementById('routineFormTarget').value = '1';
+  document.getElementById('routineWeeklyOption').style.display = 'none';
+  document.getElementById('routineMonthlyOption').style.display = 'none';
+  selectedRoutineIcon = 'eyedrop';
+  renderRoutineIconPicker();
+}
+
+function editRoutine(id) {
+  const store = loadStore();
+  const r = store.routines.find(x => x.id === id);
+  if (!r) return;
+  editingRoutineId = r.id;
+  document.getElementById('routineFormTitle').textContent = 'ルーティンの編集';
+  document.getElementById('routineFormTitleInput').value = r.title;
+  document.getElementById('routineFormFrequency').value = r.frequency;
+  document.getElementById('routineFormTarget').value = String(r.target);
+  selectedRoutineIcon = r.icon || 'eyedrop';
+  renderRoutineIconPicker();
+
+  const freq = r.frequency;
+  document.getElementById('routineWeeklyOption').style.display = (freq === 'weekly') ? 'flex' : 'none';
+  document.getElementById('routineMonthlyOption').style.display = (freq === 'monthly') ? 'block' : 'none';
+  if (freq === 'weekly' && r.days) {
+    document.querySelectorAll('input[name="rtWk"]').forEach(cb => {
+      cb.checked = r.days.includes(parseInt(cb.value, 10));
+    });
+  }
+  if (freq === 'monthly' && r.monthDay) {
+    document.getElementById('routineFormMonthDay').value = r.monthDay;
+  }
+}
+
+function renderRoutineIconPicker() {
+  const wrap = document.getElementById('routineIconPicker');
+  wrap.innerHTML = '';
+  Object.keys(ACTION_ICONS).forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'icon-opt' + (selectedRoutineIcon === k ? ' selected' : '');
+    btn.innerHTML = ACTION_ICONS[k];
+    btn.onclick = () => { selectedRoutineIcon = k; renderRoutineIconPicker(); };
+    wrap.appendChild(btn);
+  });
+}
+
+document.getElementById('routineFormFrequency').onchange = (e) => {
+  const v = e.target.value;
+  document.getElementById('routineWeeklyOption').style.display = (v === 'weekly') ? 'flex' : 'none';
+  document.getElementById('routineMonthlyOption').style.display = (v === 'monthly') ? 'block' : 'none';
+};
+
+function renderRoutineModalList() {
+  const store = loadStore();
+  const wrap = document.getElementById('routineModalList');
+  wrap.innerHTML = '';
+  const freqLabels = { daily: '毎日', weekday: '平日', weekly: '曜日指定', monthly: '毎月〇日' };
+
+  store.routines.forEach((r, idx) => {
+    const row = document.createElement('div');
+    row.className = 'manage-row';
+    const iconSvg = ACTION_ICONS[r.icon] || '';
+    row.innerHTML = `
+      <div class="manage-left">
+        <span style="color:var(--text-sub);">${iconSvg}</span>
+        <span>${r.title}</span>
+        <span style="font-size:0.7rem;color:var(--text-sub);">${freqLabels[r.frequency] || r.frequency} · ${r.target}回</span>
+      </div>
+      <div class="manage-right">
+        <button class="btn-move move-up"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+        <button class="btn-move move-down"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <button class="del-btn-icon btn-del"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+    `;
+
+    row.onclick = () => editRoutine(r.id);
+
+    row.querySelector('.move-up').onclick = (e) => {
+      e.stopPropagation();
+      if (idx > 0) {
+        const tmp = store.routines[idx];
+        store.routines[idx] = store.routines[idx-1];
+        store.routines[idx-1] = tmp;
+        saveStore(store); renderRoutineModalList(); renderDailyView();
+      }
+    };
+    row.querySelector('.move-down').onclick = (e) => {
+      e.stopPropagation();
+      if (idx < store.routines.length - 1) {
+        const tmp = store.routines[idx];
+        store.routines[idx] = store.routines[idx+1];
+        store.routines[idx+1] = tmp;
+        saveStore(store); renderRoutineModalList(); renderDailyView();
+      }
+    };
+    row.querySelector('.btn-del').onclick = (e) => {
+      e.stopPropagation();
+      showConfirm(`ルーティン「${r.title}」を削除しますか？`, () => {
+        store.routines = store.routines.filter(x => x.id !== r.id);
+        saveStore(store); renderRoutineModalList(); renderDailyView();
+      });
+    };
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById('openRoutineModalBtn').onclick = openRoutineModal;
+document.getElementById('routineCloseBtn').onclick = () => { document.getElementById('routineModal').style.display = 'none'; renderDailyView(); };
+
+document.getElementById('routineSaveBtn').onclick = () => {
+  const title = document.getElementById('routineFormTitleInput').value.trim();
+  const freq = document.getElementById('routineFormFrequency').value;
+  const target = parseInt(document.getElementById('routineFormTarget').value, 10);
+  if (!title) return;
+
+  const item = { id: editingRoutineId || ('r_' + Date.now()), title, frequency: freq, target, icon: selectedRoutineIcon };
+  if (freq === 'weekly') {
+    const days = [];
+    document.querySelectorAll('input[name="rtWk"]:checked').forEach(c => days.push(parseInt(c.value, 10)));
+    item.days = days.length ? days : [1, 2, 3, 4, 5];
+  }
+  if (freq === 'monthly') {
+    item.monthDay = parseInt(document.getElementById('routineFormMonthDay').value, 10) || 1;
+  }
+
+  const store = loadStore();
+  if (editingRoutineId) {
+    const idx = store.routines.findIndex(x => x.id === editingRoutineId);
+    if (idx !== -1) store.routines[idx] = item;
+  } else {
+    store.routines.push(item);
+  }
+  saveStore(store);
+  renderRoutineModalList();
+  renderDailyView();
+  resetRoutineForm();
+};
+
+/* Mood Modal & Reorder */
+let selectedMoodIcon = 'leaf';
+
+function openMoodModal() {
+  renderMoodModalList();
+  renderMoodIconPicker();
+  resetMoodForm();
+  document.getElementById('moodModal').style.display = 'flex';
+}
+
+function resetMoodForm() {
+  editingMoodId = null;
+  document.getElementById('moodFormTitle').textContent = '新規気分追加';
+  document.getElementById('moodFormName').value = '';
+  selectedMoodIcon = 'leaf';
+  renderMoodIconPicker();
+}
+
+function renderMoodIconPicker() {
+  const wrap = document.getElementById('moodIconPicker');
+  wrap.innerHTML = '';
+  Object.keys(MOOD_ICONS).forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'icon-opt' + (selectedMoodIcon === k ? ' selected' : '');
+    btn.innerHTML = MOOD_ICONS[k];
+    btn.onclick = () => { selectedMoodIcon = k; renderMoodIconPicker(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderMoodModalList() {
+  const store = loadStore();
+  const wrap = document.getElementById('moodModalList');
+  wrap.innerHTML = '';
+  store.moods.forEach((m, idx) => {
+    const row = document.createElement('div');
+    row.className = 'manage-row';
+    const iconSvg = MOOD_ICONS[m.icon] || '';
+    row.innerHTML = `
+      <div class="manage-left">
+        <span style="color:var(--text-sub);">${iconSvg}</span>
+        <span>${m.name}</span>
+      </div>
+      <div class="manage-right">
+        <button class="btn-move move-up"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+        <button class="btn-move move-down"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <button class="del-btn-icon btn-del"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+    `;
+
+    row.onclick = () => {
+      editingMoodId = m.id;
+      document.getElementById('moodFormTitle').textContent = '気分の編集';
+      document.getElementById('moodFormName').value = m.name;
+      selectedMoodIcon = m.icon || 'leaf';
+      renderMoodIconPicker();
+    };
+
+    row.querySelector('.move-up').onclick = (e) => {
+      e.stopPropagation();
+      if (idx > 0) {
+        const tmp = store.moods[idx];
+        store.moods[idx] = store.moods[idx-1];
+        store.moods[idx-1] = tmp;
+        saveStore(store); renderMoodModalList(); renderDailyView();
+      }
+    };
+    row.querySelector('.move-down').onclick = (e) => {
+      e.stopPropagation();
+      if (idx < store.moods.length - 1) {
+        const tmp = store.moods[idx];
+        store.moods[idx] = store.moods[idx+1];
+        store.moods[idx+1] = tmp;
+        saveStore(store); renderMoodModalList(); renderDailyView();
+      }
+    };
+    row.querySelector('.btn-del').onclick = (e) => {
+      e.stopPropagation();
+      showConfirm(`気分「${m.name}」を削除しますか？`, () => {
+        store.moods = store.moods.filter(x => x.id !== m.id);
+        saveStore(store); renderMoodModalList(); renderDailyView();
+      });
+    };
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById('openMoodModalBtn').onclick = openMoodModal;
+document.getElementById('moodCloseBtn').onclick = () => { document.getElementById('moodModal').style.display = 'none'; renderDailyView(); };
+
+document.getElementById('moodSaveBtn').onclick = () => {
+  const name = document.getElementById('moodFormName').value.trim();
+  if (!name) return;
+  const store = loadStore();
+  if (editingMoodId) {
+    const m = store.moods.find(x => x.id === editingMoodId);
+    if (m) { m.name = name; m.icon = selectedMoodIcon; }
+  } else {
+    store.moods.push({ id: 'm_' + Date.now(), name, icon: selectedMoodIcon });
+  }
+  saveStore(store);
+  renderMoodModalList();
+  renderDailyView();
+  resetMoodForm();
+};
+
+/* General Events & Backup */
+document.getElementById('prevDay').onclick = () => { currentDate.setDate(currentDate.getDate() - 1); renderDailyView(); };
+document.getElementById('nextDay').onclick = () => { currentDate.setDate(currentDate.getDate() + 1); renderDailyView(); };
+
+document.getElementById('fontToggle').onclick = () => {
+  const store = loadStore();
+  store.softFont = !store.softFont;
+  saveStore(store); renderDailyView();
+};
+
+document.getElementById('addTaskBtn').onclick = () => {
+  const input = document.getElementById('taskInput');
+  if (!input.value.trim()) return;
+  const store = loadStore();
+  const day = getDayData(store, getLocalDateKey(currentDate));
+  day.tasks.push({ id: 't_' + Date.now(), text: input.value.trim(), done: false });
+  input.value = '';
+  saveStore(store); renderDailyView();
+};
+
+document.getElementById('journalText').oninput = (e) => {
+  const store = loadStore();
+  const day = getDayData(store, getLocalDateKey(currentDate));
+  day.journal = e.target.value;
+  saveStore(store);
+};
+
+function getDailyReportText() {
+  const store = loadStore();
+  const key = getLocalDateKey(currentDate);
+  const day = getDayData(store, key);
+  let text = `📅 ${key} (${day.mood || '記録'})\n\n【タイムライン】\n`;
+  const sorted = [...day.logs].sort((a,b) => (a.startTime||0) - (b.startTime||0));
+  sorted.forEach(l => {
+    const c = store.categories.find(x => x.id === l.catId) || { name: '' };
+    const timeStr = l.startTime ? `${formatTimeOnly(l.startTime)}-${formatTimeOnly(l.endTime)}` : '';
+    text += `・${timeStr} [${c.name}] ${l.memo || ''} (${formatDuration(l.sec)})\n`;
+  });
+  return text;
+}
+
+document.getElementById('copyDailyTimelineBtn').onclick = () => {
+  const text = getDailyReportText();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast("日報をクリップボードにコピーしました"));
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast("日報をクリップボードにコピーしました");
+  }
+};
+
+document.getElementById('insertDailyToJournalBtn').onclick = () => {
+  const store = loadStore();
+  const key = getLocalDateKey(currentDate);
+  const day = getDayData(store, key);
+  const reportText = getDailyReportText();
+  day.journal = (day.journal ? day.journal + '\n\n' : '') + reportText;
+  saveStore(store);
+  document.getElementById('journalText').value = day.journal;
+  showToast("日記に日報タイムラインを挿入しました");
+};
+
+// JSON Backup / Restore
+document.getElementById('backupBtn').onclick = () => {
+  document.getElementById('backupModal').style.display = 'flex';
+};
+document.getElementById('backupCloseBtn').onclick = () => {
+  document.getElementById('backupModal').style.display = 'none';
+};
+
+document.getElementById('exportJsonBtn').onclick = () => {
+  const store = loadStore();
+  const blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `NekoHuff_backup_${getLocalDateKey(new Date())}.json`;
+  a.click();
+  showToast("JSONバックアップを出力しました");
+};
+
+document.getElementById('importJsonInput').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (data && data.categories && data.days) {
+        saveStore(data);
+        showToast("バックアップから復元しました");
+        document.getElementById('backupModal').style.display = 'none';
+        renderDailyView();
+      } else {
+        alert("無効なバックアップファイルです");
+      }
+    } catch (err) {
+      alert("JSONの読み込みに失敗しました");
+    }
+  };
+  reader.readAsText(file);
+};
+
+// Initialize
+renderDailyView();
+</script>
+</body>
+</html>

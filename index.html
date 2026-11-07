@@ -401,16 +401,29 @@
   .modal-flex-wrap { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
   .modal-check-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-sub); margin: 10px 0 14px; }
   .modal-check-label {
-    position: relative; display: inline-flex; align-items: center; gap: 2px;
+    position: relative;
+    display: inline-flex; align-items: center; gap: 2px;
     font-size: 0.75rem; line-height: 20px; cursor: pointer;
   }
   .modal-check-label input {
-    position: absolute; width: 20px; height: 20px; margin: 0; opacity: 0; cursor: pointer;
+    position: absolute; width: 16px; height: 16px; margin: 0; opacity: 0; cursor: pointer;
   }
-  .modal-check-label svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  .modal-check-label svg { width: 16px; height: 16px; flex: 0 0 16px; }
   .modal-check-label svg path { opacity: 0; }
   .modal-check-label input:checked + svg path { opacity: 1; }
   .modal-check-label input:focus-visible + svg { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+  .svg-checkbox-label { position: relative; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+  .svg-checkbox-label input {
+    position: absolute; width: 16px; height: 16px; margin: 0; opacity: 0; cursor: pointer;
+  }
+  .svg-checkbox-label svg { width: 16px; height: 16px; flex: 0 0 16px; }
+  .svg-checkbox-label svg path { opacity: 0; }
+  .svg-checkbox-label input:checked + svg path { opacity: 1; }
+  .svg-checkbox-label input:focus-visible + svg { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
+  .svg-checkbox-label.todo-checkbox input, .svg-checkbox-label.todo-checkbox svg,
+  .svg-checkbox-label.form-checkbox input, .svg-checkbox-label.form-checkbox svg {
+    width: 14px; height: 14px; flex-basis: 14px;
+  }
   .modal-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
   .modal-grid-two.compact { margin-top: 0; margin-bottom: 10px; }
   .modal-inline-field { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
@@ -749,8 +762,11 @@
           <div class="color-grid" id="catColorPicker"></div>
 
           <div class="modal-check-row">
-            <input type="checkbox" id="catFormIsWork" checked>
-            <label for="catFormIsWork">仕事として稼働集計に含める</label>
+            <label class="svg-checkbox-label form-checkbox" for="catFormIsWork">
+              <input type="checkbox" id="catFormIsWork" checked>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>
+              <span>仕事として稼働集計に含める</span>
+            </label>
           </div>
         </div>
         <div class="management-form-footer">
@@ -1310,13 +1326,14 @@ function renderDailyView() {
     const div = document.createElement('div');
     div.className = 'list-item';
     div.innerHTML = `
-      <div class="todo-check ${t.done ? 'done' : ''}">
+      <label class="todo-check svg-checkbox-label todo-checkbox ${t.done ? 'done' : ''}">
         <input type="checkbox" ${t.done ? 'checked' : ''}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>
         <span>${t.text}</span>
-      </div>
+      </label>
       <button class="del-btn-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     `;
-    div.querySelector('.todo-check').onclick = () => {
+    div.querySelector('.todo-checkbox input').onchange = () => {
       t.done = !t.done; saveStore(store); renderDailyView();
     };
     div.querySelector('.del-btn-icon').onclick = () => {

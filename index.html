@@ -354,7 +354,8 @@
   }
   .modal-box-management .modal-list-scroll,
   .modal-box-management .modal-list-scroll.short { max-height: none; overflow: visible; }
-  .modal-box-management .modal-content { display: flex; flex-direction: column; overflow: hidden; }
+  .modal-box-management .modal-content,
+  .modal-box-log-edit .modal-content { display: flex; flex-direction: column; overflow: hidden; }
   .modal-box-management .modal-list-scroll,
   .modal-box-management .modal-list-scroll.short {
     flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-bottom: 0;
@@ -420,6 +421,7 @@
   .management-form-view { display: flex; flex-direction: column; }
   .management-form-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
   .management-form-footer { flex-shrink: 0; padding-top: 12px; }
+  .log-delete-button { width: 100%; margin-bottom: 8px; }
   .manage-row {
     display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
     background: var(--card-subtle); border-radius: 12px; margin-bottom: 6px; cursor: pointer;
@@ -830,30 +832,33 @@
 
 <!-- Manual / Edit Log Modal -->
 <div class="modal-overlay" id="logEditModal">
-  <div class="modal-box">
-    <div class="modal-title" id="logModalTitle">ログの記録・編集</div>
-    <div class="modal-label compact">カテゴリ</div>
-    <select class="select-input modal-input compact" id="logFormCat"></select>
-
-    <div class="modal-field-row compact">
-      <div>
-        <div class="modal-label compact">開始時刻</div>
-        <input type="time" class="text-input modal-input" id="logFormStart">
-      </div>
-      <div>
-        <div class="modal-label compact">終了時刻</div>
-        <input type="time" class="text-input modal-input" id="logFormEnd">
-      </div>
+  <div class="modal-box modal-box-log-edit">
+    <div class="modal-header">
+      <div class="modal-title" id="logModalTitle">ログの記録・編集</div>
+      <button class="btn-icon-soft modal-close-btn" id="logCancelBtn" type="button" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
+    <div class="modal-content">
+      <div class="management-form-body">
+        <div class="modal-label compact">カテゴリ</div>
+        <select class="select-input modal-input compact" id="logFormCat"></select>
 
-    <div class="modal-label compact">メモ</div>
-    <input type="text" class="text-input modal-input mb-14" id="logFormMemo" placeholder="作業内容のメモ">
+        <div class="modal-field-row compact">
+          <div>
+            <div class="modal-label compact">開始時刻</div>
+            <input type="time" class="text-input modal-input" id="logFormStart">
+          </div>
+          <div>
+            <div class="modal-label compact">終了時刻</div>
+            <input type="time" class="text-input modal-input" id="logFormEnd">
+          </div>
+        </div>
 
-    <div class="modal-flex-row justify-between">
-      <button class="btn-icon-soft modal-button danger" id="logDeleteBtn">削除</button>
-      <div class="modal-flex-row gap-6">
-        <button class="btn-icon-soft modal-button secondary" id="logCancelBtn">キャンセル</button>
-        <button class="btn-icon-soft modal-button primary secondary" id="logSaveBtn">保存</button>
+        <div class="modal-label compact">メモ</div>
+        <input type="text" class="text-input modal-input mb-14" id="logFormMemo" placeholder="作業内容のメモ">
+      </div>
+      <div class="management-form-footer">
+        <button class="btn-icon-soft modal-button danger log-delete-button" id="logDeleteBtn">削除</button>
+        <button class="btn-add modal-button save-wide" id="logSaveBtn">保存</button>
       </div>
     </div>
   </div>

@@ -337,7 +337,17 @@
   .modal-flex-column { display: flex; flex-direction: column; gap: 10px; }
   .modal-flex-wrap { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
   .modal-check-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-sub); margin: 10px 0 14px; }
-  .modal-check-label { font-size: 0.75rem; }
+  .modal-check-label {
+    position: relative; display: inline-flex; align-items: center; gap: 2px;
+    font-size: 0.75rem; line-height: 20px; cursor: pointer;
+  }
+  .modal-check-label input {
+    position: absolute; width: 20px; height: 20px; margin: 0; opacity: 0; cursor: pointer;
+  }
+  .modal-check-label svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  .modal-check-label svg path { opacity: 0; }
+  .modal-check-label input:checked + svg path { opacity: 1; }
+  .modal-check-label input:focus-visible + svg { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
   .modal-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
   .modal-grid-two.compact { margin-top: 0; margin-bottom: 10px; }
   .modal-inline-field { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
@@ -687,13 +697,13 @@
 
     <div id="routineWeeklyOption" class="modal-flex-wrap" style="display:none;">
       <span class="modal-label full-width">曜日を選択:</span>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="1">月</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="2">火</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="3">水</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="4">木</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="5">金</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="6">土</label>
-      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="0">日</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>月</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>火</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="3"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>水</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>木</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>金</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>土</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>日</label>
     </div>
 
     <div id="routineMonthlyOption" class="modal-inline-field" style="display:none;">

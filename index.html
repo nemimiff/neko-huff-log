@@ -239,7 +239,19 @@
   }
   .list-item:last-child { border-bottom: none; }
   .todo-check { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; }
-  .todo-check.done span { text-decoration: line-through; color: var(--text-muted); }
+  .todo-check.done .todo-text { text-decoration: line-through; color: var(--text-muted); }
+  .todo-checkbox-input {
+    position: absolute; width: 22px; height: 22px; margin: 0; opacity: 0; cursor: pointer;
+  }
+  .todo-checkmark {
+    width: 22px; height: 22px; flex: 0 0 22px; border-radius: 50%;
+    background: #eae6dc; display: inline-flex; align-items: center; justify-content: center;
+    pointer-events: none; transition: background-color 0.18s ease, transform 0.18s ease;
+  }
+  .todo-checkmark svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(0.65); transition: opacity 0.18s ease, transform 0.18s ease; }
+  .todo-checkbox-input:checked + .todo-checkmark { background: var(--teal); }
+  .todo-checkbox-input:checked + .todo-checkmark svg { opacity: 1; transform: scale(1); }
+  .todo-checkbox-input:focus-visible + .todo-checkmark { outline: 2px solid var(--teal); outline-offset: 2px; }
   .del-btn-icon {
     background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
     display: flex; align-items: center; justify-content: center;
@@ -412,17 +424,18 @@
   .modal-check-label svg path { opacity: 0; }
   .modal-check-label input:checked + svg path { opacity: 1; }
   .modal-check-label input:focus-visible + svg { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
-  .svg-checkbox-label { position: relative; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
-  .svg-checkbox-label input {
-    position: absolute; width: 16px; height: 16px; margin: 0; opacity: 0; cursor: pointer;
+  .category-type-toggle {
+    display: flex; width: 100%; gap: 4px; padding: 4px; margin: 10px 0 14px;
+    border-radius: 12px; background: var(--bg);
   }
-  .svg-checkbox-label svg { width: 16px; height: 16px; flex: 0 0 16px; }
-  .svg-checkbox-label svg path { opacity: 0; }
-  .svg-checkbox-label input:checked + svg path { opacity: 1; }
-  .svg-checkbox-label input:focus-visible + svg { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 3px; }
-  .svg-checkbox-label.todo-checkbox input, .svg-checkbox-label.todo-checkbox svg,
-  .svg-checkbox-label.form-checkbox input, .svg-checkbox-label.form-checkbox svg {
-    width: 14px; height: 14px; flex-basis: 14px;
+  .category-type-option {
+    flex: 1; border: 0; border-radius: 9px; padding: 8px 12px;
+    background: transparent; color: var(--text-sub); font: inherit; font-size: 0.82rem;
+    cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .category-type-option[aria-pressed="true"] {
+    background: #fff; color: var(--text-main); font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   }
   .modal-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
   .modal-grid-two.compact { margin-top: 0; margin-bottom: 10px; }
@@ -761,13 +774,11 @@
           <div class="modal-label spaced">カラーを選択:</div>
           <div class="color-grid" id="catColorPicker"></div>
 
-          <div class="modal-check-row">
-            <label class="svg-checkbox-label form-checkbox" for="catFormIsWork">
-              <input type="checkbox" id="catFormIsWork" checked>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>
-              <span>仕事として稼働集計に含める</span>
-            </label>
+          <div class="category-type-toggle" role="group" aria-label="カテゴリの区分">
+            <button type="button" class="category-type-option" data-is-work="false" aria-pressed="false">プライベート</button>
+            <button type="button" class="category-type-option" data-is-work="true" aria-pressed="true">仕事</button>
           </div>
+          <input type="checkbox" id="catFormIsWork" checked hidden>
         </div>
         <div class="management-form-footer">
           <button class="btn-add modal-button save-wide" id="catSaveBtn">カテゴリを保存</button>
@@ -1326,14 +1337,14 @@ function renderDailyView() {
     const div = document.createElement('div');
     div.className = 'list-item';
     div.innerHTML = `
-      <label class="todo-check svg-checkbox-label todo-checkbox ${t.done ? 'done' : ''}">
-        <input type="checkbox" ${t.done ? 'checked' : ''}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>
-        <span>${t.text}</span>
+      <label class="todo-check ${t.done ? 'done' : ''}">
+        <input type="checkbox" class="todo-checkbox-input" ${t.done ? 'checked' : ''}>
+        <span class="todo-checkmark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span>
+        <span class="todo-text">${t.text}</span>
       </label>
       <button class="del-btn-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     `;
-    div.querySelector('.todo-checkbox input').onchange = () => {
+    div.querySelector('.todo-checkbox-input').onchange = () => {
       t.done = !t.done; saveStore(store); renderDailyView();
     };
     div.querySelector('.del-btn-icon').onclick = () => {
@@ -1688,10 +1699,17 @@ function showCatList() {
   document.getElementById('catAddBtn').hidden = false;
 }
 
+function setCategoryWorkType(isWork) {
+  document.getElementById('catFormIsWork').checked = isWork;
+  document.querySelectorAll('.category-type-option').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.isWork === String(isWork)));
+  });
+}
+
 function resetCatForm() {
   editingCatId = null;
   document.getElementById('catFormName').value = '';
-  document.getElementById('catFormIsWork').checked = true;
+  setCategoryWorkType(true);
   selectedCatIcon = 'laptop';
   selectedCatColor = PRESET_COLORS[0];
   renderCatIconPicker();
@@ -1746,7 +1764,7 @@ function renderCatModalList() {
     row.onclick = () => {
       editingCatId = c.id;
       document.getElementById('catFormName').value = c.name;
-      document.getElementById('catFormIsWork').checked = c.isWork !== false;
+      setCategoryWorkType(c.isWork !== false);
       selectedCatIcon = c.icon || 'laptop';
       selectedCatColor = c.color || PRESET_COLORS[0];
       renderCatIconPicker();
@@ -1770,6 +1788,9 @@ document.getElementById('openCatModalBtn').onclick = openCatModal;
 document.getElementById('catCloseBtn').onclick = () => { document.getElementById('catModal').style.display = 'none'; renderDailyView(); };
 document.getElementById('catAddBtn').onclick = () => { resetCatForm(); showCatForm(); };
 document.getElementById('catFormBackBtn').onclick = resetCatForm;
+document.querySelectorAll('.category-type-option').forEach(button => {
+  button.onclick = () => setCategoryWorkType(button.dataset.isWork === 'true');
+});
 
 document.getElementById('catSaveBtn').onclick = () => {
   const name = document.getElementById('catFormName').value.trim();

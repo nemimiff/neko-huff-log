@@ -314,7 +314,46 @@
   .modal-box {
     background: #fff; border-radius: 20px; width: 100%; max-width: 440px; padding: 22px; box-shadow: 0 12px 36px rgba(0,0,0,0.1);
   }
+  .modal-box.modal-box-sm { max-width: 320px; }
   .modal-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+  .modal-title.modal-title-tight { margin-bottom: 8px; }
+  .modal-subtitle { font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
+  .modal-message { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px; }
+  .modal-message-text { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 16px; }
+  .modal-label { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 4px; }
+  .modal-label.compact { font-size: 0.75rem; }
+  .modal-label.spaced { margin: 8px 0 4px; }
+  .modal-label.full-width { display: block; width: 100%; margin-bottom: 0; }
+  .modal-list-scroll { max-height: 200px; overflow-y: auto; margin-bottom: 16px; }
+  .modal-list-scroll.short { max-height: 180px; margin-bottom: 14px; }
+  .modal-input { width: 100%; margin-bottom: 8px; }
+  .modal-input.compact { margin-bottom: 10px; }
+  .modal-input.mb-14 { margin-bottom: 14px; }
+  .modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .modal-field-row.compact { margin-bottom: 10px; }
+  .modal-flex-row { display: flex; align-items: center; }
+  .modal-flex-row.justify-between { justify-content: space-between; }
+  .modal-flex-row.gap-6 { gap: 6px; }
+  .modal-flex-column { display: flex; flex-direction: column; gap: 10px; }
+  .modal-flex-wrap { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+  .modal-check-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-sub); margin: 10px 0 14px; }
+  .modal-check-label { font-size: 0.75rem; }
+  .modal-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .modal-grid-two.compact { margin-top: 0; margin-bottom: 10px; }
+  .modal-inline-field { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .modal-number { width: 70px; margin-left: 6px; }
+  .modal-button { border-radius: 8px; width: auto; height: auto; font-size: 0.8rem; }
+  .modal-button.primary {
+    background-color: rgb(181, 168, 159); color: #fff;
+  }
+  .modal-button.secondary { padding: 6px 14px; }
+  .modal-button.danger { color: var(--rest-pink-text); padding: 6px 12px; }
+  .modal-button.close { padding: 6px 16px; }
+  .modal-button.save-wide { width: 100%; padding: 9px; background-color: rgb(181, 168, 159); color: #fff; }
+  .modal-button.save-wide.mt-10 { margin-top: 10px; }
+  .modal-button.save-wide.mt-12 { margin-top: 12px; }
+  .modal-button.action { padding: 10px; text-align: center; }
+  .modal-button.action.label { cursor: pointer; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 
   /* Manage List Row */
@@ -582,12 +621,12 @@
 
 <!-- Confirmation Dialog -->
 <div class="modal-overlay" id="confirmModal">
-  <div class="modal-box" style="max-width:320px;">
-    <div class="modal-title" style="margin-bottom:8px;">確認</div>
-    <div id="confirmModalMessage" style="font-size:0.85rem;color:var(--text-sub);margin-bottom:16px;"></div>
+  <div class="modal-box modal-box-sm">
+    <div class="modal-title modal-title-tight">確認</div>
+    <div id="confirmModalMessage" class="modal-message"></div>
     <div class="modal-actions">
-      <button class="btn-icon-soft" id="confirmModalCancelBtn" style="border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;">キャンセル</button>
-      <button class="btn-icon-soft" id="confirmModalOkBtn" style="border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;background-color:rgb(181, 168, 159);color:#fff;">削除する</button>
+      <button class="btn-icon-soft modal-button secondary" id="confirmModalCancelBtn">キャンセル</button>
+      <button class="btn-icon-soft modal-button primary secondary" id="confirmModalOkBtn">削除する</button>
     </div>
   </div>
 </div>
@@ -596,25 +635,25 @@
 <div class="modal-overlay" id="catModal">
   <div class="modal-box">
     <div class="modal-title">カテゴリ管理</div>
-    <div id="catModalList" style="max-height:200px;overflow-y:auto;margin-bottom:16px;"></div>
+    <div id="catModalList" class="modal-list-scroll"></div>
 
-    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="catFormTitle">新規カテゴリ追加</div>
-    <input type="text" class="text-input" id="catFormName" placeholder="カテゴリ名" style="width:100%;margin-bottom:8px;">
+    <div class="modal-subtitle" id="catFormTitle">新規カテゴリ追加</div>
+    <input type="text" class="text-input modal-input" id="catFormName" placeholder="カテゴリ名">
     
-    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="modal-label">アイコンを選択:</div>
     <div class="icon-grid" id="catIconPicker"></div>
 
-    <div style="font-size:0.7rem;color:var(--text-sub);margin:8px 0 4px;">カラーを選択:</div>
+    <div class="modal-label spaced">カラーを選択:</div>
     <div class="color-grid" id="catColorPicker"></div>
 
-    <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-sub);margin:10px 0 14px;">
+    <div class="modal-check-row">
       <input type="checkbox" id="catFormIsWork" checked>
       <label for="catFormIsWork">仕事として稼働集計に含める</label>
     </div>
 
-    <button class="btn-add" id="catSaveBtn" style="width:100%;padding:9px;background-color:rgb(181, 168, 159);color:#fff;">カテゴリを保存</button>
+    <button class="btn-add modal-button save-wide" id="catSaveBtn">カテゴリを保存</button>
     <div class="modal-actions">
-      <button class="btn-icon-soft" id="catCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+      <button class="btn-icon-soft modal-button close" id="catCloseBtn">完了</button>
     </div>
   </div>
 </div>
@@ -623,15 +662,15 @@
 <div class="modal-overlay" id="routineModal">
   <div class="modal-box">
     <div class="modal-title">ルーティン管理</div>
-    <div id="routineModalList" style="max-height:180px;overflow-y:auto;margin-bottom:14px;"></div>
+    <div id="routineModalList" class="modal-list-scroll short"></div>
 
-    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="routineFormTitle">新規ルーティン作成</div>
-    <input type="text" class="text-input" id="routineFormTitleInput" placeholder="ルーティン名（例：ごはんたくさんたべる💧）" style="width:100%;margin-bottom:8px;">
+    <div class="modal-subtitle" id="routineFormTitle">新規ルーティン作成</div>
+    <input type="text" class="text-input modal-input" id="routineFormTitleInput" placeholder="ルーティン名（例：ごはんたくさんたべる💧）">
 
-    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="modal-label">アイコンを選択:</div>
     <div class="icon-grid" id="routineIconPicker"></div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+    <div class="modal-grid-two">
       <select class="select-input" id="routineFormFrequency">
         <option value="daily">毎日</option>
         <option value="weekday">平日のみ</option>
@@ -646,25 +685,25 @@
       </select>
     </div>
 
-    <div id="routineWeeklyOption" style="display:none;gap:4px;flex-wrap:wrap;margin-top:8px;">
-      <span style="font-size:0.7rem;color:var(--text-sub);width:100%;">曜日を選択:</span>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="1">月</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="2">火</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="3">水</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="4">木</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="5">金</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="6">土</label>
-      <label style="font-size:0.75rem;"><input type="checkbox" name="rtWk" value="0">日</label>
+    <div id="routineWeeklyOption" class="modal-flex-wrap" style="display:none;">
+      <span class="modal-label full-width">曜日を選択:</span>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="1">月</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="2">火</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="3">水</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="4">木</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="5">金</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="6">土</label>
+      <label class="modal-check-label"><input type="checkbox" name="rtWk" value="0">日</label>
     </div>
 
-    <div id="routineMonthlyOption" style="display:none;margin-top:8px;">
-      <label style="font-size:0.75rem;color:var(--text-sub);">毎月何日:</label>
-      <input type="number" class="text-input" id="routineFormMonthDay" min="1" max="31" value="1" style="width:70px;margin-left:6px;"> 日
+    <div id="routineMonthlyOption" class="modal-inline-field" style="display:none;">
+      <label class="modal-label compact">毎月何日:</label>
+      <input type="number" class="text-input modal-number" id="routineFormMonthDay" min="1" max="31" value="1"> 日
     </div>
 
-    <button class="btn-add" id="routineSaveBtn" style="width:100%;padding:9px;margin-top:12px;background-color:rgb(181, 168, 159);color:#fff;">ルーティンを保存</button>
+    <button class="btn-add modal-button save-wide mt-12" id="routineSaveBtn">ルーティンを保存</button>
     <div class="modal-actions">
-      <button class="btn-icon-soft" id="routineCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+      <button class="btn-icon-soft modal-button close" id="routineCloseBtn">完了</button>
     </div>
   </div>
 </div>
@@ -673,17 +712,17 @@
 <div class="modal-overlay" id="moodModal">
   <div class="modal-box">
     <div class="modal-title">気分カテゴリ設定</div>
-    <div id="moodModalList" style="max-height:180px;overflow-y:auto;margin-bottom:14px;"></div>
+    <div id="moodModalList" class="modal-list-scroll short"></div>
 
-    <div style="font-size:0.8rem;font-weight:700;margin-bottom:8px;" id="moodFormTitle">新規気分追加</div>
-    <input type="text" class="text-input" id="moodFormName" placeholder="気分名（例：すっきり、集中）" style="width:100%;margin-bottom:8px;">
+    <div class="modal-subtitle" id="moodFormTitle">新規気分追加</div>
+    <input type="text" class="text-input modal-input" id="moodFormName" placeholder="気分名（例：すっきり、集中）">
     
-    <div style="font-size:0.7rem;color:var(--text-sub);margin-bottom:4px;">アイコンを選択:</div>
+    <div class="modal-label">アイコンを選択:</div>
     <div class="icon-grid" id="moodIconPicker"></div>
 
-    <button class="btn-add" id="moodSaveBtn" style="width:100%;padding:9px;margin-top:10px;background-color:rgb(181, 168, 159);color:#fff;">気分を保存</button>
+    <button class="btn-add modal-button save-wide mt-10" id="moodSaveBtn">気分を保存</button>
     <div class="modal-actions">
-      <button class="btn-icon-soft" id="moodCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">完了</button>
+      <button class="btn-icon-soft modal-button close" id="moodCloseBtn">完了</button>
     </div>
   </div>
 </div>
@@ -692,28 +731,28 @@
 <div class="modal-overlay" id="logEditModal">
   <div class="modal-box">
     <div class="modal-title" id="logModalTitle">ログの記録・編集</div>
-    <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">カテゴリ</div>
-    <select class="select-input" id="logFormCat" style="width:100%;margin-bottom:10px;"></select>
+    <div class="modal-label compact">カテゴリ</div>
+    <select class="select-input modal-input compact" id="logFormCat"></select>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <div class="modal-field-row compact">
       <div>
-        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">開始時刻</div>
-        <input type="time" class="text-input" id="logFormStart" style="width:100%;">
+        <div class="modal-label compact">開始時刻</div>
+        <input type="time" class="text-input modal-input" id="logFormStart">
       </div>
       <div>
-        <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">終了時刻</div>
-        <input type="time" class="text-input" id="logFormEnd" style="width:100%;">
+        <div class="modal-label compact">終了時刻</div>
+        <input type="time" class="text-input modal-input" id="logFormEnd">
       </div>
     </div>
 
-    <div style="font-size:0.75rem;color:var(--text-sub);margin-bottom:4px;">メモ</div>
-    <input type="text" class="text-input" id="logFormMemo" placeholder="作業内容のメモ" style="width:100%;margin-bottom:14px;">
+    <div class="modal-label compact">メモ</div>
+    <input type="text" class="text-input modal-input mb-14" id="logFormMemo" placeholder="作業内容のメモ">
 
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <button class="btn-icon-soft" id="logDeleteBtn" style="color:var(--rest-pink-text);border-radius:8px;padding:6px 12px;width:auto;height:auto;font-size:0.8rem;">削除</button>
-      <div style="display:flex;gap:6px;">
-        <button class="btn-icon-soft" id="logCancelBtn" style="border-radius:8px;padding:6px 12px;width:auto;height:auto;font-size:0.8rem;">キャンセル</button>
-        <button class="btn-icon-soft" id="logSaveBtn" style="background-color:rgb(181, 168, 159);color:#fff;border-radius:8px;padding:6px 14px;width:auto;height:auto;font-size:0.8rem;">保存</button>
+    <div class="modal-flex-row justify-between">
+      <button class="btn-icon-soft modal-button danger" id="logDeleteBtn">削除</button>
+      <div class="modal-flex-row gap-6">
+        <button class="btn-icon-soft modal-button secondary" id="logCancelBtn">キャンセル</button>
+        <button class="btn-icon-soft modal-button primary secondary" id="logSaveBtn">保存</button>
       </div>
     </div>
   </div>
@@ -723,18 +762,18 @@
 <div class="modal-overlay" id="backupModal">
   <div class="modal-box">
     <div class="modal-title">バックアップと復元</div>
-    <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:16px;">
+    <p class="modal-message-text">
       データは端末のローカルストレージに自動保存されています。定期的にJSONファイルを出力しておくと安心です。
     </p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn-add" id="exportJsonBtn" style="padding:10px;text-align:center;">JSONファイルを書き出し</button>
-      <label class="btn-add" style="padding:10px;text-align:center;cursor:pointer;">
+    <div class="modal-flex-column">
+      <button class="btn-add modal-button action" id="exportJsonBtn">JSONファイルを書き出し</button>
+      <label class="btn-add modal-button action label">
         JSONファイルから復元
         <input type="file" id="importJsonInput" accept=".json" style="display:none;">
       </label>
     </div>
     <div class="modal-actions">
-      <button class="btn-icon-soft" id="backupCloseBtn" style="border-radius:8px;padding:6px 16px;width:auto;height:auto;font-size:0.8rem;">閉じる</button>
+      <button class="btn-icon-soft modal-button close" id="backupCloseBtn">閉じる</button>
     </div>
   </div>
 </div>

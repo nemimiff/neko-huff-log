@@ -308,8 +308,8 @@
   }
   /* Modals */
   .modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    height: var(--modal-viewport-height, 100vh); transform: translateY(var(--modal-viewport-top, 0px));
+    position: fixed; top: var(--modal-viewport-top, 0px); left: 0; width: 100vw; height: 100vh;
+    height: var(--modal-viewport-height, 100vh);
     background: rgba(0,0,0,0.4); display: none; align-items: flex-start; justify-content: center;
     overflow-y: auto; overscroll-behavior-y: contain;
     padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); z-index: 1000; backdrop-filter: blur(4px);
@@ -975,13 +975,21 @@ function updateModalViewport() {
   requestAnimationFrame(() => {
     modalViewportUpdateScheduled = false;
     const visualViewport = window.visualViewport;
-    document.documentElement.style.setProperty('--modal-viewport-height', `${visualViewport ? visualViewport.height : window.innerHeight}px`);
+    const viewportHeight = visualViewport ? Math.min(window.innerHeight, visualViewport.height) : window.innerHeight;
+    document.documentElement.style.setProperty('--modal-viewport-height', `${viewportHeight}px`);
     document.documentElement.style.setProperty('--modal-viewport-top', `${visualViewport ? visualViewport.offsetTop : 0}px`);
   });
 }
 
+function updateModalViewportAfterKeyboard() {
+  updateModalViewport();
+  setTimeout(updateModalViewport, 300);
+}
+
 updateModalViewport();
 window.addEventListener('resize', updateModalViewport, { passive: true });
+window.addEventListener('focusin', updateModalViewportAfterKeyboard, { passive: true });
+window.addEventListener('focusout', updateModalViewportAfterKeyboard, { passive: true });
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', updateModalViewport, { passive: true });
   window.visualViewport.addEventListener('scroll', updateModalViewport, { passive: true });

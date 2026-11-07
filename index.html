@@ -332,10 +332,20 @@
   }
   .modal-box:not(.modal-box-management) { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .modal-header {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 12px;
     flex-shrink: 0; padding-bottom: 12px; margin-bottom: 12px;
     border-bottom: 1px solid #f0eee8;
   }
+  .management-header-center {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    flex: 1; min-width: 0; white-space: nowrap;
+  }
+  .management-header-center .modal-title { margin: 0; font-size: 1rem; font-weight: 700; line-height: 1.2; text-align: center; }
+  .management-header-back, .management-header-add { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; }
+  .management-header-back svg, .management-header-add svg {
+    width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5;
+  }
+  .management-header-back[hidden], .management-header-add[hidden] { display: none; }
   .modal-header .modal-title { margin-bottom: 0; }
   .modal-close-btn { flex-shrink: 0; }
   .modal-content {
@@ -344,6 +354,11 @@
   }
   .modal-box-management .modal-list-scroll,
   .modal-box-management .modal-list-scroll.short { max-height: none; overflow: visible; }
+  .modal-box-management .modal-content { display: flex; flex-direction: column; overflow: hidden; }
+  .modal-box-management .modal-list-scroll,
+  .modal-box-management .modal-list-scroll.short {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-bottom: 0;
+  }
   @media (max-height: 600px) {
     .modal-list-scroll, .modal-list-scroll.short { max-height: none; overflow-y: visible; }
   }
@@ -400,6 +415,11 @@
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 
   /* Manage List Row */
+  .management-list-view[hidden], .management-form-view[hidden] { display: none; }
+  .management-list-view, .management-form-view { flex: 1 1 auto; min-height: 0; }
+  .management-form-view { display: flex; flex-direction: column; }
+  .management-form-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+  .management-form-footer { flex-shrink: 0; padding-top: 12px; }
   .manage-row {
     display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
     background: var(--card-subtle); border-radius: 12px; margin-bottom: 6px; cursor: pointer;
@@ -678,27 +698,37 @@
 <div class="modal-overlay" id="catModal">
   <div class="modal-box modal-box-management">
     <div class="modal-header">
-      <div class="modal-title">カテゴリ管理</div>
+      <button class="btn-icon-soft management-header-back" id="catFormBackBtn" type="button" title="一覧に戻る" aria-label="一覧に戻る" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></button>
+      <div class="management-header-center">
+        <div class="modal-title" id="catModalTitle">カテゴリ管理</div>
+        <button class="btn-icon-soft management-header-add" id="catAddBtn" type="button" title="カテゴリを追加" aria-label="カテゴリを追加"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></button>
+      </div>
       <button class="btn-icon-soft modal-close-btn" id="catCloseBtn" type="button" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="modal-content">
-      <div id="catModalList" class="modal-list-scroll"></div>
-
-      <div class="modal-subtitle" id="catFormTitle">新規カテゴリ追加</div>
-      <input type="text" class="text-input modal-input" id="catFormName" placeholder="カテゴリ名">
-    
-      <div class="modal-label">アイコンを選択:</div>
-      <div class="icon-grid" id="catIconPicker"></div>
-
-      <div class="modal-label spaced">カラーを選択:</div>
-      <div class="color-grid" id="catColorPicker"></div>
-
-      <div class="modal-check-row">
-        <input type="checkbox" id="catFormIsWork" checked>
-        <label for="catFormIsWork">仕事として稼働集計に含める</label>
+      <div class="management-list-view" id="catListView">
+        <div id="catModalList" class="modal-list-scroll"></div>
       </div>
 
-      <button class="btn-add modal-button save-wide" id="catSaveBtn">カテゴリを保存</button>
+      <div class="management-form-view" id="catFormView" hidden>
+        <div class="management-form-body">
+          <input type="text" class="text-input modal-input" id="catFormName" placeholder="カテゴリ名">
+
+          <div class="modal-label">アイコンを選択:</div>
+          <div class="icon-grid" id="catIconPicker"></div>
+
+          <div class="modal-label spaced">カラーを選択:</div>
+          <div class="color-grid" id="catColorPicker"></div>
+
+          <div class="modal-check-row">
+            <input type="checkbox" id="catFormIsWork" checked>
+            <label for="catFormIsWork">仕事として稼働集計に含める</label>
+          </div>
+        </div>
+        <div class="management-form-footer">
+          <button class="btn-add modal-button save-wide" id="catSaveBtn">カテゴリを保存</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -707,50 +737,61 @@
 <div class="modal-overlay" id="routineModal">
   <div class="modal-box modal-box-management">
     <div class="modal-header">
-      <div class="modal-title">ルーティン管理</div>
+      <button class="btn-icon-soft management-header-back" id="routineFormBackBtn" type="button" title="一覧に戻る" aria-label="一覧に戻る" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></button>
+      <div class="management-header-center">
+        <div class="modal-title" id="routineModalTitle">ルーティン管理</div>
+        <button class="btn-icon-soft management-header-add" id="routineAddBtn" type="button" title="ルーティンを追加" aria-label="ルーティンを追加"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></button>
+      </div>
       <button class="btn-icon-soft modal-close-btn" id="routineCloseBtn" type="button" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="modal-content">
-      <div id="routineModalList" class="modal-list-scroll short"></div>
-
-      <div class="modal-subtitle" id="routineFormTitle">新規ルーティン作成</div>
-      <input type="text" class="text-input modal-input" id="routineFormTitleInput" placeholder="ルーティン名（例：ごはんたくさんたべる💧）">
-
-      <div class="modal-label">アイコンを選択:</div>
-      <div class="icon-grid" id="routineIconPicker"></div>
-
-      <div class="modal-grid-two">
-        <select class="select-input" id="routineFormFrequency">
-          <option value="daily">毎日</option>
-          <option value="weekday">平日のみ</option>
-          <option value="weekly">特定の曜日</option>
-          <option value="monthly">毎月〇日</option>
-        </select>
-        <select class="select-input" id="routineFormTarget">
-          <option value="1">1日 1回</option>
-          <option value="2">1日 2回</option>
-          <option value="3">1日 3回</option>
-          <option value="4">1日 4回</option>
-        </select>
+      <div class="management-list-view" id="routineListView">
+        <div id="routineModalList" class="modal-list-scroll short"></div>
       </div>
 
-      <div id="routineWeeklyOption" class="modal-flex-wrap" style="display:none;">
-        <span class="modal-label full-width">曜日を選択:</span>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>月</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>火</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="3"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>水</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>木</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>金</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>土</label>
-        <label class="modal-check-label"><input type="checkbox" name="rtWk" value="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>日</label>
-      </div>
+      <div class="management-form-view" id="routineFormView" hidden>
+        <div class="management-form-body">
+          <input type="text" class="text-input modal-input" id="routineFormTitleInput" placeholder="ルーティン名（例：ごはんたくさんたべる💧）">
 
-      <div id="routineMonthlyOption" class="modal-inline-field" style="display:none;">
-        <label class="modal-label compact">毎月何日:</label>
-        <input type="number" class="text-input modal-number" id="routineFormMonthDay" min="1" max="31" value="1"> 日
-      </div>
+          <div class="modal-label">アイコンを選択:</div>
+          <div class="icon-grid" id="routineIconPicker"></div>
 
-      <button class="btn-add modal-button save-wide mt-12" id="routineSaveBtn">ルーティンを保存</button>
+          <div class="modal-grid-two">
+            <select class="select-input" id="routineFormFrequency">
+              <option value="daily">毎日</option>
+              <option value="weekday">平日のみ</option>
+              <option value="weekly">特定の曜日</option>
+              <option value="monthly">毎月〇日</option>
+            </select>
+            <select class="select-input" id="routineFormTarget">
+              <option value="1">1日 1回</option>
+              <option value="2">1日 2回</option>
+              <option value="3">1日 3回</option>
+              <option value="4">1日 4回</option>
+            </select>
+          </div>
+
+          <div id="routineWeeklyOption" class="modal-flex-wrap" style="display:none;">
+            <span class="modal-label full-width">曜日を選択:</span>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>月</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>火</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="3"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>水</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="4"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>木</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="5"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>金</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>土</label>
+            <label class="modal-check-label"><input type="checkbox" name="rtWk" value="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 9-5.5 5.5L8 12"/></svg>日</label>
+          </div>
+
+          <div id="routineMonthlyOption" class="modal-inline-field" style="display:none;">
+            <label class="modal-label compact">毎月何日:</label>
+            <input type="number" class="text-input modal-number" id="routineFormMonthDay" min="1" max="31" value="1"> 日
+          </div>
+        </div>
+
+        <div class="management-form-footer">
+          <button class="btn-add modal-button save-wide" id="routineSaveBtn">ルーティンを保存</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -759,19 +800,30 @@
 <div class="modal-overlay" id="moodModal">
   <div class="modal-box modal-box-management">
     <div class="modal-header">
-      <div class="modal-title">気分カテゴリ設定</div>
+      <button class="btn-icon-soft management-header-back" id="moodFormBackBtn" type="button" title="一覧に戻る" aria-label="一覧に戻る" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></button>
+      <div class="management-header-center">
+        <div class="modal-title" id="moodModalTitle">気分カテゴリ設定</div>
+        <button class="btn-icon-soft management-header-add" id="moodAddBtn" type="button" title="気分を追加" aria-label="気分を追加"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></button>
+      </div>
       <button class="btn-icon-soft modal-close-btn" id="moodCloseBtn" type="button" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
     </div>
     <div class="modal-content">
-      <div id="moodModalList" class="modal-list-scroll short"></div>
+      <div class="management-list-view" id="moodListView">
+        <div id="moodModalList" class="modal-list-scroll short"></div>
+      </div>
 
-      <div class="modal-subtitle" id="moodFormTitle">新規気分追加</div>
-      <input type="text" class="text-input modal-input" id="moodFormName" placeholder="気分名（例：すっきり、集中）">
-    
-      <div class="modal-label">アイコンを選択:</div>
-      <div class="icon-grid" id="moodIconPicker"></div>
+      <div class="management-form-view" id="moodFormView" hidden>
+        <div class="management-form-body">
+          <input type="text" class="text-input modal-input" id="moodFormName" placeholder="気分名（例：すっきり、集中）">
 
-      <button class="btn-add modal-button save-wide mt-10" id="moodSaveBtn">気分を保存</button>
+          <div class="modal-label">アイコンを選択:</div>
+          <div class="icon-grid" id="moodIconPicker"></div>
+        </div>
+
+        <div class="management-form-footer">
+          <button class="btn-add modal-button save-wide" id="moodSaveBtn">気分を保存</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1536,21 +1588,35 @@ let selectedCatColor = PRESET_COLORS[0];
 
 function openCatModal() {
   renderCatModalList();
-  renderCatIconPicker();
-  renderCatColorPicker();
   resetCatForm();
   document.getElementById('catModal').style.display = 'flex';
 }
 
+function showCatForm() {
+  document.getElementById('catListView').hidden = true;
+  document.getElementById('catFormView').hidden = false;
+  document.getElementById('catModalTitle').textContent = editingCatId ? 'カテゴリの編集' : '新規カテゴリ追加';
+  document.getElementById('catFormBackBtn').hidden = false;
+  document.getElementById('catAddBtn').hidden = true;
+}
+
+function showCatList() {
+  document.getElementById('catFormView').hidden = true;
+  document.getElementById('catListView').hidden = false;
+  document.getElementById('catModalTitle').textContent = 'カテゴリ管理';
+  document.getElementById('catFormBackBtn').hidden = true;
+  document.getElementById('catAddBtn').hidden = false;
+}
+
 function resetCatForm() {
   editingCatId = null;
-  document.getElementById('catFormTitle').textContent = '新規カテゴリ追加';
   document.getElementById('catFormName').value = '';
   document.getElementById('catFormIsWork').checked = true;
   selectedCatIcon = 'laptop';
   selectedCatColor = PRESET_COLORS[0];
   renderCatIconPicker();
   renderCatColorPicker();
+  showCatList();
 }
 
 function renderCatIconPicker() {
@@ -1600,13 +1666,13 @@ function renderCatModalList() {
 
     row.onclick = () => {
       editingCatId = c.id;
-      document.getElementById('catFormTitle').textContent = 'カテゴリの編集';
       document.getElementById('catFormName').value = c.name;
       document.getElementById('catFormIsWork').checked = c.isWork !== false;
       selectedCatIcon = c.icon || 'laptop';
       selectedCatColor = c.color || PRESET_COLORS[0];
       renderCatIconPicker();
       renderCatColorPicker();
+      showCatForm();
     };
 
     row.querySelector('.move-up').onclick = (e) => {
@@ -1641,6 +1707,8 @@ function renderCatModalList() {
 
 document.getElementById('openCatModalBtn').onclick = openCatModal;
 document.getElementById('catCloseBtn').onclick = () => { document.getElementById('catModal').style.display = 'none'; renderDailyView(); };
+document.getElementById('catAddBtn').onclick = () => { resetCatForm(); showCatForm(); };
+document.getElementById('catFormBackBtn').onclick = resetCatForm;
 
 document.getElementById('catSaveBtn').onclick = () => {
   const name = document.getElementById('catFormName').value.trim();
@@ -1664,21 +1732,38 @@ let selectedRoutineIcon = 'eyedrop';
 
 function openRoutineModal() {
   renderRoutineModalList();
-  renderRoutineIconPicker();
   resetRoutineForm();
   document.getElementById('routineModal').style.display = 'flex';
 }
 
+function showRoutineForm() {
+  document.getElementById('routineListView').hidden = true;
+  document.getElementById('routineFormView').hidden = false;
+  document.getElementById('routineModalTitle').textContent = editingRoutineId ? 'ルーティンの編集' : '新規ルーティン作成';
+  document.getElementById('routineFormBackBtn').hidden = false;
+  document.getElementById('routineAddBtn').hidden = true;
+}
+
+function showRoutineList() {
+  document.getElementById('routineFormView').hidden = true;
+  document.getElementById('routineListView').hidden = false;
+  document.getElementById('routineModalTitle').textContent = 'ルーティン管理';
+  document.getElementById('routineFormBackBtn').hidden = true;
+  document.getElementById('routineAddBtn').hidden = false;
+}
+
 function resetRoutineForm() {
   editingRoutineId = null;
-  document.getElementById('routineFormTitle').textContent = '新規ルーティン作成';
   document.getElementById('routineFormTitleInput').value = '';
   document.getElementById('routineFormFrequency').value = 'daily';
   document.getElementById('routineFormTarget').value = '1';
   document.getElementById('routineWeeklyOption').style.display = 'none';
   document.getElementById('routineMonthlyOption').style.display = 'none';
+  document.getElementById('routineFormMonthDay').value = '1';
+  document.querySelectorAll('input[name="rtWk"]').forEach(cb => { cb.checked = false; });
   selectedRoutineIcon = 'eyedrop';
   renderRoutineIconPicker();
+  showRoutineList();
 }
 
 function editRoutine(id) {
@@ -1686,7 +1771,6 @@ function editRoutine(id) {
   const r = store.routines.find(x => x.id === id);
   if (!r) return;
   editingRoutineId = r.id;
-  document.getElementById('routineFormTitle').textContent = 'ルーティンの編集';
   document.getElementById('routineFormTitleInput').value = r.title;
   document.getElementById('routineFormFrequency').value = r.frequency;
   document.getElementById('routineFormTarget').value = String(r.target);
@@ -1696,14 +1780,13 @@ function editRoutine(id) {
   const freq = r.frequency;
   document.getElementById('routineWeeklyOption').style.display = (freq === 'weekly') ? 'flex' : 'none';
   document.getElementById('routineMonthlyOption').style.display = (freq === 'monthly') ? 'block' : 'none';
-  if (freq === 'weekly' && r.days) {
-    document.querySelectorAll('input[name="rtWk"]').forEach(cb => {
-      cb.checked = r.days.includes(parseInt(cb.value, 10));
-    });
-  }
+  document.querySelectorAll('input[name="rtWk"]').forEach(cb => {
+    cb.checked = freq === 'weekly' && !!r.days && r.days.includes(parseInt(cb.value, 10));
+  });
   if (freq === 'monthly' && r.monthDay) {
     document.getElementById('routineFormMonthDay').value = r.monthDay;
   }
+  showRoutineForm();
 }
 
 function renderRoutineIconPicker() {
@@ -1780,6 +1863,8 @@ function renderRoutineModalList() {
 
 document.getElementById('openRoutineModalBtn').onclick = openRoutineModal;
 document.getElementById('routineCloseBtn').onclick = () => { document.getElementById('routineModal').style.display = 'none'; renderDailyView(); };
+document.getElementById('routineAddBtn').onclick = () => { resetRoutineForm(); showRoutineForm(); };
+document.getElementById('routineFormBackBtn').onclick = resetRoutineForm;
 
 document.getElementById('routineSaveBtn').onclick = () => {
   const title = document.getElementById('routineFormTitleInput').value.trim();
@@ -1815,17 +1900,32 @@ let selectedMoodIcon = 'leaf';
 
 function openMoodModal() {
   renderMoodModalList();
-  renderMoodIconPicker();
   resetMoodForm();
   document.getElementById('moodModal').style.display = 'flex';
 }
 
+function showMoodForm() {
+  document.getElementById('moodListView').hidden = true;
+  document.getElementById('moodFormView').hidden = false;
+  document.getElementById('moodModalTitle').textContent = editingMoodId ? '気分の編集' : '新規気分追加';
+  document.getElementById('moodFormBackBtn').hidden = false;
+  document.getElementById('moodAddBtn').hidden = true;
+}
+
+function showMoodList() {
+  document.getElementById('moodFormView').hidden = true;
+  document.getElementById('moodListView').hidden = false;
+  document.getElementById('moodModalTitle').textContent = '気分カテゴリ設定';
+  document.getElementById('moodFormBackBtn').hidden = true;
+  document.getElementById('moodAddBtn').hidden = false;
+}
+
 function resetMoodForm() {
   editingMoodId = null;
-  document.getElementById('moodFormTitle').textContent = '新規気分追加';
   document.getElementById('moodFormName').value = '';
   selectedMoodIcon = 'leaf';
   renderMoodIconPicker();
+  showMoodList();
 }
 
 function renderMoodIconPicker() {
@@ -1862,10 +1962,10 @@ function renderMoodModalList() {
 
     row.onclick = () => {
       editingMoodId = m.id;
-      document.getElementById('moodFormTitle').textContent = '気分の編集';
       document.getElementById('moodFormName').value = m.name;
       selectedMoodIcon = m.icon || 'leaf';
       renderMoodIconPicker();
+      showMoodForm();
     };
 
     row.querySelector('.move-up').onclick = (e) => {
@@ -1899,6 +1999,8 @@ function renderMoodModalList() {
 
 document.getElementById('openMoodModalBtn').onclick = openMoodModal;
 document.getElementById('moodCloseBtn').onclick = () => { document.getElementById('moodModal').style.display = 'none'; renderDailyView(); };
+document.getElementById('moodAddBtn').onclick = () => { resetMoodForm(); showMoodForm(); };
+document.getElementById('moodFormBackBtn').onclick = resetMoodForm;
 
 document.getElementById('moodSaveBtn').onclick = () => {
   const name = document.getElementById('moodFormName').value.trim();

@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+2:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
 <style>
   :root {
@@ -430,6 +431,9 @@
     background: var(--card-subtle); border-radius: 12px; margin-bottom: 6px; cursor: pointer;
     transition: background 0.15s;
   }
+  .sortable-list .manage-row { cursor: grab; user-select: none; -webkit-user-select: none; }
+  .sortable-list .manage-row:active { cursor: grabbing; }
+  .sortable-list .manage-row.sortable-ghost { opacity: 0.4; }
   .manage-row:hover { background: var(--surface-hover); }
   .manage-left { display: flex; align-items: center; gap: 10px; flex: 1; line-height:1; }
   .manage-left svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
@@ -712,7 +716,7 @@
     </div>
     <div class="modal-content">
       <div class="management-list-view" id="catListView">
-        <div id="catModalList" class="modal-list-scroll"></div>
+        <div id="catModalList" class="modal-list-scroll sortable-list"></div>
       </div>
 
       <div class="management-form-view" id="catFormView" hidden>
@@ -751,7 +755,7 @@
     </div>
     <div class="modal-content">
       <div class="management-list-view" id="routineListView">
-        <div id="routineModalList" class="modal-list-scroll short"></div>
+        <div id="routineModalList" class="modal-list-scroll short sortable-list"></div>
       </div>
 
       <div class="management-form-view" id="routineFormView" hidden>
@@ -1593,11 +1597,42 @@ document.getElementById('logDeleteBtn').onclick = () => {
 /* Category Modal & Reorder */
 let selectedCatIcon = 'laptop';
 let selectedCatColor = PRESET_COLORS[0];
+let catSortable = null;
+let routineSortable = null;
+
+function createManagementSortable(wrap, onReorder) {
+  if (!window.Sortable) {
+    showToast('並び替えライブラリを読み込めませんでした');
+    return null;
+  }
+  return window.Sortable.create(wrap, {
+    animation: 150,
+    delay: 200,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 5,
+    filter: '.btn-del',
+    preventOnFilter: false,
+    onEnd: onReorder
+  });
+}
 
 function openCatModal() {
   renderCatModalList();
   resetCatForm();
   document.getElementById('catModal').style.display = 'flex';
+  if (!catSortable) {
+    catSortable = createManagementSortable(document.getElementById('catModalList'), () => {
+      const store = loadStore();
+      const categoriesById = new Map(store.categories.map(category => [category.id, category]));
+      store.categories = Array.from(document.querySelectorAll('#catModalList .manage-row')).map(row => {
+        const category = categoriesById.get(row.dataset.itemId);
+        if (!category) throw new Error(`Unknown category in reordered list: ${row.dataset.itemId}`);
+        return category;
+      });
+      saveStore(store);
+      renderDailyChips();
+    });
+  }
 }
 
 function showCatForm() {
@@ -1655,9 +1690,10 @@ function renderCatModalList() {
   const store = loadStore();
   const wrap = document.getElementById('catModalList');
   wrap.innerHTML = '';
-  store.categories.forEach((c, idx) => {
+  store.categories.forEach(c => {
     const row = document.createElement('div');
     row.className = 'manage-row';
+    row.dataset.itemId = c.id;
     const iconSvg = ACTION_ICONS[c.icon] || '';
     row.innerHTML = `
       <div class="manage-left">
@@ -1666,8 +1702,6 @@ function renderCatModalList() {
         <span style="font-size:0.7rem;color:var(--text-sub);">${c.isWork ? '仕事' : 'プライベート'}</span>
       </div>
       <div class="manage-right">
-        <button class="btn-move move-up"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
-        <button class="btn-move move-down"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <button class="del-btn-icon btn-del"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
     `;
@@ -1683,24 +1717,6 @@ function renderCatModalList() {
       showCatForm();
     };
 
-    row.querySelector('.move-up').onclick = (e) => {
-      e.stopPropagation();
-      if (idx > 0) {
-        const tmp = store.categories[idx];
-        store.categories[idx] = store.categories[idx-1];
-        store.categories[idx-1] = tmp;
-        saveStore(store); renderCatModalList(); renderDailyChips();
-      }
-    };
-    row.querySelector('.move-down').onclick = (e) => {
-      e.stopPropagation();
-      if (idx < store.categories.length - 1) {
-        const tmp = store.categories[idx];
-        store.categories[idx] = store.categories[idx+1];
-        store.categories[idx+1] = tmp;
-        saveStore(store); renderCatModalList(); renderDailyChips();
-      }
-    };
     row.querySelector('.btn-del').onclick = (e) => {
       e.stopPropagation();
       if (store.categories.length <= 1) return alert("カテゴリは最低1つ必要です");
@@ -1742,6 +1758,19 @@ function openRoutineModal() {
   renderRoutineModalList();
   resetRoutineForm();
   document.getElementById('routineModal').style.display = 'flex';
+  if (!routineSortable) {
+    routineSortable = createManagementSortable(document.getElementById('routineModalList'), () => {
+      const store = loadStore();
+      const routinesById = new Map(store.routines.map(routine => [routine.id, routine]));
+      store.routines = Array.from(document.querySelectorAll('#routineModalList .manage-row')).map(row => {
+        const routine = routinesById.get(row.dataset.itemId);
+        if (!routine) throw new Error(`Unknown routine in reordered list: ${row.dataset.itemId}`);
+        return routine;
+      });
+      saveStore(store);
+      renderDailyView();
+    });
+  }
 }
 
 function showRoutineForm() {
@@ -1821,9 +1850,10 @@ function renderRoutineModalList() {
   wrap.innerHTML = '';
   const freqLabels = { daily: '毎日', weekday: '平日', weekly: '曜日指定', monthly: '毎月〇日' };
 
-  store.routines.forEach((r, idx) => {
+  store.routines.forEach(r => {
     const row = document.createElement('div');
     row.className = 'manage-row';
+    row.dataset.itemId = r.id;
     const iconSvg = ACTION_ICONS[r.icon] || '';
     row.innerHTML = `
       <div class="manage-left">
@@ -1832,32 +1862,12 @@ function renderRoutineModalList() {
         <span style="font-size:0.7rem;color:var(--text-sub);">${freqLabels[r.frequency] || r.frequency} · ${r.target}回</span>
       </div>
       <div class="manage-right">
-        <button class="btn-move move-up"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
-        <button class="btn-move move-down"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         <button class="del-btn-icon btn-del"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
     `;
 
     row.onclick = () => editRoutine(r.id);
 
-    row.querySelector('.move-up').onclick = (e) => {
-      e.stopPropagation();
-      if (idx > 0) {
-        const tmp = store.routines[idx];
-        store.routines[idx] = store.routines[idx-1];
-        store.routines[idx-1] = tmp;
-        saveStore(store); renderRoutineModalList(); renderDailyView();
-      }
-    };
-    row.querySelector('.move-down').onclick = (e) => {
-      e.stopPropagation();
-      if (idx < store.routines.length - 1) {
-        const tmp = store.routines[idx];
-        store.routines[idx] = store.routines[idx+1];
-        store.routines[idx+1] = tmp;
-        saveStore(store); renderRoutineModalList(); renderDailyView();
-      }
-    };
     row.querySelector('.btn-del').onclick = (e) => {
       e.stopPropagation();
       showConfirm(`ルーティン「${r.title}」を削除しますか？`, () => {

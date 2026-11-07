@@ -310,8 +310,8 @@
   }
   .cal-card { padding: 16px 8px; }
   .cal-cell {
-    aspect-ratio: 0.92; border-radius: 9px; padding: 3px 2px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    aspect-ratio: 0.8; border-radius: 9px; padding: 5px 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
     cursor: pointer; transition: transform 0.15s ease; border: 1px solid transparent;
     position: relative; overflow: hidden;
   }
@@ -1511,9 +1511,13 @@ function renderMonthView() {
     const day = store.days[key];
     const isWeekend = (cur.getDay() === 0 || cur.getDay() === 6);
     let dSec = 0;
+    let dWorkSec = 0;
     if (day) {
       day.logs.forEach(l => {
         const cat = store.categories.find(c => c.id === l.catId);
+        if (cat && cat.isWork === true) {
+          dWorkSec += l.sec;
+        }
         if (!cat || cat.isWork !== false) {
           dSec += l.sec;
           monthSec += l.sec;
@@ -1521,13 +1525,14 @@ function renderMonthView() {
         monthCats[l.catId] = (monthCats[l.catId] || 0) + l.sec;
       });
     }
-    const hours = (dSec / 3600);
+    const hours = (dWorkSec / 3600);
+    const roundedHours = dWorkSec <= 1800 ? 0 : Math.min(99, Math.round(hours));
 
     let heatClass = 'heat-0';
-    if (hours > 0) {
-      if (hours >= 9.0) heatClass = 'heat-4';
-      else if (hours >= 6.0) heatClass = 'heat-3';
-      else if (hours >= 3.0) heatClass = 'heat-2';
+    if (roundedHours > 0) {
+      if (roundedHours >= 9) heatClass = 'heat-4';
+      else if (roundedHours >= 6) heatClass = 'heat-3';
+      else if (roundedHours >= 3) heatClass = 'heat-2';
       else heatClass = 'heat-1';
     } else if (isWeekend) {
       heatClass = 'heat-rest';
@@ -1547,7 +1552,7 @@ function renderMonthView() {
       <div style="font-weight:600;font-size:0.72rem;line-height:1;">${d}</div>
       <div class="cal-cell-details">
         <div class="cal-mood-center">${moodCenterSvg}</div>
-        <div class="cal-duration">${hours > 0 ? (hours >= 1 ? hours.toFixed(1).replace('.0','')+'h' : Math.round(dSec/60)+'m') : ''}</div>
+        <div class="cal-duration">${roundedHours > 0 ? `${roundedHours}h` : ''}</div>
       </div>
     `;
     cell.onclick = () => {

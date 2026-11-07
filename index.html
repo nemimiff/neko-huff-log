@@ -311,9 +311,12 @@
   .cal-card { padding: 16px 8px; }
   .cal-cell {
     aspect-ratio: 0.8; border-radius: 9px; padding: 5px 2px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
     cursor: pointer; transition: transform 0.15s ease; border: 1px solid transparent;
     position: relative; overflow: hidden;
+  }
+  @media (min-width: 600px) {
+    .cal-cell { gap: 10px; padding-block: 8px; }
   }
   .cal-cell:hover { transform: scale(1.04); z-index: 2; }
   .cal-cell.today { border-color: var(--text-main); }

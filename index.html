@@ -305,11 +305,12 @@
   }
   .cal-weekdays .sun, .cal-weekdays .sat { color: var(--rest-pink-text); }
   .cal-grid {
-    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px;
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; margin-bottom: 14px;
     width: 100%; overflow: hidden;
   }
+  .cal-card { padding: 16px 8px; }
   .cal-cell {
-    aspect-ratio: 0.92; border-radius: 9px; padding: 10px 2px;
+    aspect-ratio: 0.92; border-radius: 9px; padding: 3px 2px;
     display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     cursor: pointer; transition: transform 0.15s ease; border: 1px solid transparent;
     position: relative; overflow: hidden;
@@ -325,11 +326,10 @@
   .cal-cell.heat-3 { background: #3fa295; color: #ffffff; font-weight: 600; }
   .cal-cell.heat-4 { background: #1f6b62; color: #ffffff; font-weight: 700; }
   .cal-mood-center {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    flex: 0 0 auto;
   }
   .cal-mood-center svg {
     width: 14px;
@@ -338,6 +338,14 @@
     fill: none;
     stroke-width: 1.8;
     opacity: 0.9;
+  }
+  .cal-cell-details {
+    display: flex; align-items: center; justify-content: center; gap: 2px;
+    width: 100%; min-height: 14px; white-space: nowrap;
+  }
+  .cal-duration {
+    min-width: 0; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis;
+    font-size: 0.65rem; line-height: 1; white-space: nowrap;
   }
   /* Modals */
   .modal-overlay {
@@ -693,7 +701,7 @@
     </div>
   </div>
 
-  <section class="card">
+  <section class="card cal-card">
     <div class="cal-weekdays">
       <div class="sun">日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div class="sat">土</div>
     </div>
@@ -1537,8 +1545,10 @@ function renderMonthView() {
     cell.className = `cal-cell ${heatClass} tnum`;
     cell.innerHTML = `
       <div style="font-weight:600;font-size:0.72rem;line-height:1;">${d}</div>
-      <div class="cal-mood-center">${moodCenterSvg}</div>
-      <div style="font-size:0.65rem;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${hours > 0 ? (hours >= 1 ? hours.toFixed(1).replace('.0','')+'h' : Math.round(dSec/60)+'m') : ''}</div>
+      <div class="cal-cell-details">
+        <div class="cal-mood-center">${moodCenterSvg}</div>
+        <div class="cal-duration">${hours > 0 ? (hours >= 1 ? hours.toFixed(1).replace('.0','')+'h' : Math.round(dSec/60)+'m') : ''}</div>
+      </div>
     `;
     cell.onclick = () => {
       currentDate = new Date(year, month, d);
